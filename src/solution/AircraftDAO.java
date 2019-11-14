@@ -89,8 +89,17 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public List<Aircraft> findAircraftBySeats(int seats) {
+		
+		ArrayList<Aircraft> arrayBySeats = new ArrayList<>();
+		
+		for(Aircraft temp : globalArrayOfAircraft) {
+			if(temp.getSeats >= seats) {
+				arrayBySeats.add(temp);	
+			}
+		}
+		
 		// TODO Auto-generated method stub
-		return null;
+		return arrayBySeats;
 	}
 
 	/**
@@ -100,8 +109,16 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public List<Aircraft> findAircraftByStartingPosition(String startingPosition) {
+		ArrayList<Aircraft> arrayByPosition = new ArrayList<>();
+		
+		for(Aircraft temp : globalArrayOfAircraft) {
+			if(temp.getStartingPosition().equals(startingPosition)) { // checks string equality
+				arrayByPosition.add(temp);	
+			}
+		}
+		
 		// TODO Auto-generated method stub
-		return null;
+		return arrayByPosition;
 	}
 
 	/**
@@ -111,8 +128,16 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public Aircraft findAircraftByTailCode(String tailCode) {
-		// TODO Auto-generated method stub
+		
+		for(Aircraft temp : globalArrayOfAircraft) {
+			if(temp.getTailCode().equals(tailcode)) {
+				return temp;
+			}
+		}
+		
 		return null;
+		
+		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -122,8 +147,16 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public List<Aircraft> findAircraftByType(String typeCode) {
+		ArrayList<Aircraft> arrayByType = new ArrayList<>();
+		
+		for(Aircraft temp : globalArrayOfAircraft) {
+			if(temp.getType().equals(typeCode)) { // checks string equality
+				arrayByType.add(temp);	
+			}
+		}
+		
 		// TODO Auto-generated method stub
-		return null;
+		return arrayByType;
 	}
 
 	/**
@@ -132,7 +165,7 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public List<Aircraft> getAllAircraft() {
-		return null;
+		return globalArrayOfAircraft;
 	}
 
 	/**
@@ -141,8 +174,10 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public int getNumberOfAircraft() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		numAircraft = globalArrayOfAircraft.size();
+		
+		return numAircraft;
 	}
 
 	/**
@@ -150,6 +185,9 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public void reset() {
+		
+		globalArrayOfAircraft.clear();
+		
 		// TODO Auto-generated method stub
 
 	}

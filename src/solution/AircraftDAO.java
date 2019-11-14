@@ -16,20 +16,22 @@ import java.util.ArrayList; // import the ArrayList class
  */
 public class AircraftDAO implements IAircraftDAO {
 	
+	ArrayList<Aircraft> globalArrayOfAircraft = new ArrayList<>();
+	
+	
+	
 	/**
 	 * Loads the aircraft data from the specified file, adding them to the currently loaded aircraft
 	 * Multiple calls to this function, perhaps on different files, would thus be cumulative
 	 * @param p A Path pointing to the file from which data could be loaded
 	 * @throws DataLoadingException if anything goes wrong. The exception's "cause" indicates the underlying exception
-     *
 	 * Initially, this contains some starter code to help you get started in reading the CSV file...
 	 */
 	@Override
 	public void loadAircraftData(Path p) throws DataLoadingException {
 		
-		Aircraft temp = new Aircraft();
-		
-		ArrayList<Aircraft> arrayListOfAirplanes = new ArrayList<Aircraft>();
+		Aircraft temp = new Aircraft();		
+		ArrayList<Aircraft> arrayListOfAircraft = new ArrayList<>();
 		
 		try {
 			//open the file
@@ -48,17 +50,25 @@ public class AircraftDAO implements IAircraftDAO {
 				//put some of the fields into variables: check which fields are where atop the CSV file itself
 				String tailcode = fields[0];
 				String type = fields[1];
-				
-				
+				String manufacturer = fields[2];
+				String model = fields[3];
 				int seats = Integer.parseInt(fields[4]);
-				
+				int cabinCrewReq = Integer.parseInt(fields[5]);
+				String startPos = fields[6];
 				
 				temp.setTailCode(tailcode);
+				temp.setTypeCode(type);
+				temp.setManufacturer(manufacturer);
+				temp.setModel(model);
+				temp.setSeats(seats);
+				temp.setCabinCrewRequired(cabinCrewReq);
+				temp.setStartingPosition(startPos);
 				
-				
+				// http://sandbox.kriswelsh.com/advprog/
+
 				//print a line explaining what we've found
 				System.out.println("Aircraft: " + tailcode + " is a " + type + " with " + seats + " seats.");
-				arrayListOfAirplanes.add(temp);
+				arrayListOfAircraft.add(temp);
 				temp = null;
 			}
 		}
@@ -67,6 +77,8 @@ public class AircraftDAO implements IAircraftDAO {
 			//There was a problem reading the file
 			throw new DataLoadingException(ioe);
 		}
+		
+		globalArrayOfAircraft = arrayListOfAircraft;
 
 	}
 	

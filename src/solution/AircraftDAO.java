@@ -51,6 +51,9 @@ public class AircraftDAO implements IAircraftDAO {
 				String tailcode = fields[0];
 				String type = fields[1];
 				String manufacturer = fields[2];
+				
+				
+				
 				String model = fields[3];
 				int seats = Integer.parseInt(fields[4]);
 				int cabinCrewReq = Integer.parseInt(fields[5]);
@@ -58,7 +61,7 @@ public class AircraftDAO implements IAircraftDAO {
 				
 				temp.setTailCode(tailcode);
 				temp.setTypeCode(type);
-				temp.setManufacturer(manufacturer);
+				temp.setManufacturer(manufacturer.toUpperCase());
 				temp.setModel(model);
 				temp.setSeats(seats);
 				temp.setCabinCrewRequired(cabinCrewReq);
@@ -93,7 +96,7 @@ public class AircraftDAO implements IAircraftDAO {
 		ArrayList<Aircraft> arrayBySeats = new ArrayList<>();
 		
 		for(Aircraft temp : globalArrayOfAircraft) {
-			if(temp.getSeats >= seats) {
+			if(temp.getSeats() >= seats) {
 				arrayBySeats.add(temp);	
 			}
 		}
@@ -130,7 +133,7 @@ public class AircraftDAO implements IAircraftDAO {
 	public Aircraft findAircraftByTailCode(String tailCode) {
 		
 		for(Aircraft temp : globalArrayOfAircraft) {
-			if(temp.getTailCode().equals(tailcode)) {
+			if(temp.getTailCode().equals(tailCode)) {
 				return temp;
 			}
 		}
@@ -150,7 +153,7 @@ public class AircraftDAO implements IAircraftDAO {
 		ArrayList<Aircraft> arrayByType = new ArrayList<>();
 		
 		for(Aircraft temp : globalArrayOfAircraft) {
-			if(temp.getType().equals(typeCode)) { // checks string equality
+			if(temp.getTypeCode().equals(typeCode)) { // checks string equality
 				arrayByType.add(temp);	
 			}
 		}
@@ -175,7 +178,7 @@ public class AircraftDAO implements IAircraftDAO {
 	@Override
 	public int getNumberOfAircraft() {
 		
-		numAircraft = globalArrayOfAircraft.size();
+		int numAircraft = globalArrayOfAircraft.size();
 		
 		return numAircraft;
 	}

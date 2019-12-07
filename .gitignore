@@ -1,6 +1,6 @@
-/AircraftDAO.class
-/CrewDAO.class
-/Main.class
-/PassengerNumbersDAO.class
-/RouteDAO.class
-/Scheduler.class
+**/AircraftDAO.class
+**/CrewDAO.class
+**/Main.class
+**/PassengerNumbersDAO.class
+**/RouteDAO.class
+**/Scheduler.class

@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 
 import baseclasses.DataLoadingException;
 import baseclasses.IAircraftDAO;
+import baseclasses.ICrewDAO;
 
 /**
  * This class allows you to run the code in your classes yourself, for testing and development
@@ -20,6 +21,17 @@ public class Main {
 			System.err.println("Error loading aircraft data");
 			dle.printStackTrace();
 		}
+		
+		ICrewDAO crew = new CrewDAO();
+		
+		try {
+			crew.loadCrewData(Paths.get("./data/crew.json"));
+		}
+		catch (DataLoadingException dle) {
+			System.err.println("Error loading crew data");
+			dle.printStackTrace();
+		}
+		
 	}
 
 }

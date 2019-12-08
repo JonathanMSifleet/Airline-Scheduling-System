@@ -76,6 +76,8 @@ public class CrewDAO implements ICrewDAO {
 						tempPilot.setQualifiedFor(pilotTypeRating.get(j).toString());
 					}
 
+					// System.out.println(tempPilot.getHomeBase());
+
 					globalArrayOfPilots.add(tempPilot);
 					tempPilot = new Pilot();
 				}
@@ -122,7 +124,15 @@ public class CrewDAO implements ICrewDAO {
 	public List<CabinCrew> findCabinCrewByHomeBase(String airportCode) {
 		// TODO Auto-generated method stub
 
-		return null;
+		ArrayList<CabinCrew> tempList = new ArrayList<>();
+
+		for (int i = 0; i < globalArrayOfCabinCrew.size(); i++) {
+			if (globalArrayOfCabinCrew.get(i).getHomeBase().equals(airportCode)) {
+				tempList.add(globalArrayOfCabinCrew.get(i));
+			}
+		}
+
+		return tempList;
 	}
 
 	/**
@@ -137,7 +147,15 @@ public class CrewDAO implements ICrewDAO {
 	@Override
 	public List<CabinCrew> findCabinCrewByHomeBaseAndTypeRating(String typeCode, String airportCode) {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<CabinCrew> tempList = new ArrayList<>();
+
+		for (int i = 0; i < globalArrayOfCabinCrew.size(); i++) {
+			if (globalArrayOfCabinCrew.get(i).getHomeBase().equals(airportCode)
+					&& globalArrayOfCabinCrew.get(i).isQualifiedFor(typeCode)) {
+				tempList.add(globalArrayOfCabinCrew.get(i));
+			}
+		}
+		return tempList;
 	}
 
 	/**
@@ -151,7 +169,14 @@ public class CrewDAO implements ICrewDAO {
 	@Override
 	public List<CabinCrew> findCabinCrewByTypeRating(String typeCode) {
 		// TODO Auto-generated method stub
-		return null;
+
+		ArrayList<CabinCrew> tempList = new ArrayList<>();
+		for (int i = 0; i < globalArrayOfCabinCrew.size(); i++) {
+			if (globalArrayOfCabinCrew.get(i).getTypeRatings().contains(typeCode)) {
+				tempList.add(globalArrayOfCabinCrew.get(i));
+			}
+		}
+		return tempList;
 	}
 
 	/**
@@ -194,7 +219,7 @@ public class CrewDAO implements ICrewDAO {
 	@Override
 	public List<Pilot> findPilotsByTypeRating(String typeCode) {
 		// TODO Auto-generated method stub
-		
+
 		return null;
 	}
 

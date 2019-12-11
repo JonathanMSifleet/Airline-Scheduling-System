@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import baseclasses.DataLoadingException;
 import baseclasses.IPassengerNumbersDAO;
-import org.sqlite.*;
 import java.sql.*;
 
 /**
@@ -29,10 +28,8 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 	@Override
 	public void loadPassengerNumbersData(Path p) throws DataLoadingException {
 		// TODO Auto-generated method stub
-
-		Connection c = null;
-		int size = 0;
 		try {
+			Connection c = null;
 			// connect to DB:
 			c = DriverManager.getConnection("jdbc:sqlite:" + p);
 
@@ -42,28 +39,14 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 
 			// fetch results:
 			while (rs.next()) {
-				size++;
-				String tempString = rs.getString("Date") + ",";
-				tempString = tempString + rs.getString("FlightNumber") + ",";
-				tempString = tempString + rs.getString("Passengers");
+				String tempString = rs.getString("Date") + "," + rs.getString("FlightNumber") + "," +  rs.getString("Passengers");
+				//System.out.println(tempString);
+
 				arrayOfPassengers.add(tempString);
 			}
-		} catch (SQLException se) {
-			se.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		System.out.println(size);
-
-	}
-
-	/**
-	 * Returns the number of passenger number entries in the cache
-	 * 
-	 * @return the number of passenger number entries in the cache
-	 */
-	@Override
-	public int getNumberOfEntries() {
-		// TODO Auto-generated method stub
-		return arrayOfPassengers.size();
 	}
 
 	/**
@@ -81,6 +64,17 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 		// [do]
 
 		return 0;
+	}
+
+	/**
+	 * Returns the number of passenger number entries in the cache
+	 * 
+	 * @return the number of passenger number entries in the cache
+	 */
+	@Override
+	public int getNumberOfEntries() {
+		// TODO Auto-generated method stub
+		return arrayOfPassengers.size();
 	}
 
 	/**

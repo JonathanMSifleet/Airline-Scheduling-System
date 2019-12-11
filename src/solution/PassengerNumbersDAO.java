@@ -1,12 +1,16 @@
 package solution;
 
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import baseclasses.DataLoadingException;
 import baseclasses.IPassengerNumbersDAO;
-import java.sql.*;
 
 /**
  * The PassengerNumbersDAO is responsible for loading an SQLite database
@@ -14,7 +18,7 @@ import java.sql.*;
  */
 public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 
-	ArrayList<String> arrayOfPassengers = new ArrayList<>();
+	Map<String, Integer> numbers = new HashMap<>();
 
 	/**
 	 * Loads the passenger numbers data from the specified SQLite database into a
@@ -39,13 +43,15 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 
 			// fetch results:
 			while (rs.next()) {
-				String tempString = rs.getString("Date") + "," + rs.getString("FlightNumber") + "," +  rs.getString("Passengers");
-				//System.out.println(tempString);
-
-				arrayOfPassengers.add(tempString);
+				numbers.put(rs.getString("FlightNumber") + " " + rs.getString("Date"),
+						Integer.parseInt(rs.getString("Passengers")));
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+
+			c.close();
+			rs.close();
+			s.close();
+		} catch (Exception e) {
+			throw new DataLoadingException();
 		}
 	}
 
@@ -61,9 +67,11 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 	public int getPassengerNumbersFor(int flightNumber, LocalDate date) {
 		// TODO Auto-generated method stub
 
-		// [do]
-
-		return 0;
+		int results = -1;
+		if (numbers.containsKey(flightNumber + " " + date)) {
+			results = numbers.get(flightNumber + " " + date);
+		}
+		return results;
 	}
 
 	/**
@@ -74,7 +82,7 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 	@Override
 	public int getNumberOfEntries() {
 		// TODO Auto-generated method stub
-		return arrayOfPassengers.size();
+		return numbers.size();
 	}
 
 	/**
@@ -83,7 +91,7 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		arrayOfPassengers = null;
+		numbers.clear();
 	}
 
 }

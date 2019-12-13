@@ -18,7 +18,7 @@ import baseclasses.IPassengerNumbersDAO;
  */
 public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 
-	Map<String, Integer> numbers = new HashMap<>();
+	Map<String, Integer> passengers = new HashMap<>();
 
 	/**
 	 * Loads the passenger numbers data from the specified SQLite database into a
@@ -43,7 +43,7 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 
 			// fetch results:
 			while (rs.next()) {
-				numbers.put(rs.getString("FlightNumber") + " " + rs.getString("Date"),
+				passengers.put(rs.getString("FlightNumber") + "," + rs.getString("Date"),
 						Integer.parseInt(rs.getString("Passengers")));
 			}
 
@@ -68,8 +68,9 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 		// TODO Auto-generated method stub
 
 		int results = -1;
-		if (numbers.containsKey(flightNumber + " " + date)) {
-			results = numbers.get(flightNumber + " " + date);
+
+		if (passengers.containsKey(flightNumber + "," + date)) {
+			results = passengers.get(flightNumber + "," + date);
 		}
 		return results;
 	}
@@ -82,7 +83,7 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 	@Override
 	public int getNumberOfEntries() {
 		// TODO Auto-generated method stub
-		return numbers.size();
+		return passengers.size();
 	}
 
 	/**
@@ -91,7 +92,7 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		numbers.clear();
+		passengers.clear();
 	}
 
 }

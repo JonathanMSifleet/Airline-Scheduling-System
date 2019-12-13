@@ -6,6 +6,7 @@ import baseclasses.DataLoadingException;
 import baseclasses.IAircraftDAO;
 import baseclasses.ICrewDAO;
 import baseclasses.IPassengerNumbersDAO;
+import baseclasses.IRouteDAO;
 
 /**
  * This class allows you to run the code in your classes yourself, for testing
@@ -38,6 +39,15 @@ public class Main {
 			passengers.loadPassengerNumbersData(Paths.get("./data/passengernumbers.db"));
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading passenger data");
+			dle.printStackTrace();
+		}
+		
+		IRouteDAO routes = new RouteDAO();
+
+		try {
+			routes.loadRouteData(Paths.get("./data/routes.xml"));
+		} catch (DataLoadingException dle) {
+			System.err.println("Error loading route data");
 			dle.printStackTrace();
 		}
 

@@ -1,4 +1,5 @@
 package solution;
+
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
@@ -14,7 +15,25 @@ import baseclasses.Route;
 public class RouteDAO implements IRouteDAO {
 
 	/**
+	 * Loads the route data from the specified file, adding them to the currently
+	 * loaded routes Multiple calls to this function, perhaps on different files,
+	 * would thus be cumulative
+	 * 
+	 * @param p A Path pointing to the file from which data could be loaded
+	 * @throws DataLoadingException if anything goes wrong. The exception's "cause"
+	 * indicates the underlying exception
+	 */
+	@Override
+	public void loadRouteData(Path arg0) throws DataLoadingException {
+		// TODO Auto-generated method stub
+		
+		
+
+	}
+
+	/**
 	 * Finds all flights that depart on the specified day of the week
+	 * 
 	 * @param dayOfWeek A three letter day of the week, e.g. "Tue"
 	 * @return A list of all routes that depart on this day
 	 */
@@ -25,9 +44,13 @@ public class RouteDAO implements IRouteDAO {
 	}
 
 	/**
-	 * Finds all of the flights that depart from a specific airport on a specific day of the week
-	 * @param airportCode the three letter code of the airport to search for, e.g. "MAN"
-	 * @param dayOfWeek the three letter day of the week code to searh for, e.g. "Tue"
+	 * Finds all of the flights that depart from a specific airport on a specific
+	 * day of the week
+	 * 
+	 * @param airportCode the three letter code of the airport to search for, e.g.
+	 * "MAN"
+	 * @param dayOfWeek the three letter day of the week code to searh for, e.g.
+	 * "Tue"
 	 * @return A list of all routes from that airport on that day
 	 */
 	@Override
@@ -38,7 +61,9 @@ public class RouteDAO implements IRouteDAO {
 
 	/**
 	 * Finds all of the flights that depart from a specific airport
-	 * @param airportCode the three letter code of the airport to search for, e.g. "MAN"
+	 * 
+	 * @param airportCode the three letter code of the airport to search for, e.g.
+	 * "MAN"
 	 * @return A list of all of the routes departing the specified airport
 	 */
 	@Override
@@ -49,6 +74,7 @@ public class RouteDAO implements IRouteDAO {
 
 	/**
 	 * Finds all of the flights that depart on the specified date
+	 * 
 	 * @param date the date to search for
 	 * @return A list of all routes that dpeart on this date
 	 */
@@ -60,6 +86,7 @@ public class RouteDAO implements IRouteDAO {
 
 	/**
 	 * Returns The full list of all currently loaded routes
+	 * 
 	 * @return The full list of all currently loaded routes
 	 */
 	@Override
@@ -70,24 +97,13 @@ public class RouteDAO implements IRouteDAO {
 
 	/**
 	 * Returns The number of routes currently loaded
+	 * 
 	 * @return The number of routes currently loaded
 	 */
 	@Override
 	public int getNumberOfRoutes() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	/**
-	 * Loads the route data from the specified file, adding them to the currently loaded routes
-	 * Multiple calls to this function, perhaps on different files, would thus be cumulative
-	 * @param p A Path pointing to the file from which data could be loaded
-	 * @throws DataLoadingException if anything goes wrong. The exception's "cause" indicates the underlying exception
-	 */
-	@Override
-	public void loadRouteData(Path arg0) throws DataLoadingException {
-		// TODO Auto-generated method stub
-
 	}
 
 	/**

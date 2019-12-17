@@ -15,7 +15,7 @@ import baseclasses.IRouteDAO;
 public class Main {
 
 	public static void main(String[] args) {
-		IAircraftDAO aircraft = new AircraftDAO();
+		/* IAircraftDAO aircraft = new AircraftDAO();
 
 		try {
 			aircraft.loadAircraftData(Paths.get("./data/aircraft.csv"));
@@ -40,8 +40,8 @@ public class Main {
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading passenger data");
 			dle.printStackTrace();
-		}
-		
+		} */
+
 		IRouteDAO routes = new RouteDAO();
 
 		try {

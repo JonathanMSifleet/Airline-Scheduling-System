@@ -12,8 +12,7 @@ import baseclasses.SchedulerRunner;
 public class Scheduler implements IScheduler {
 
 	@Override
-	public Schedule generateSchedule(IAircraftDAO arg0, ICrewDAO arg1, IRouteDAO arg2, IPassengerNumbersDAO arg3,
-			LocalDate arg4, LocalDate arg5) {
+	public Schedule generateSchedule(IAircraftDAO arg0, ICrewDAO arg1, IRouteDAO arg2, IPassengerNumbersDAO arg3, LocalDate arg4, LocalDate arg5) {
 		// TODO Auto-generated method stub
 		return null;
 	}

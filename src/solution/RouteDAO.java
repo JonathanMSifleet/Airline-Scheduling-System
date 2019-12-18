@@ -241,5 +241,4 @@ public class RouteDAO implements IRouteDAO {
 		// TODO Auto-generated method stub
 		arrayOfRoutes = new ArrayList<Route>();
 	}
-
 }

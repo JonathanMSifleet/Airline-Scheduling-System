@@ -1,8 +1,10 @@
 package solution;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -23,6 +25,8 @@ import baseclasses.Route;
  */
 public class RouteDAO implements IRouteDAO {
 
+	ArrayList<Route> arrayOfRoutes = new ArrayList<>();
+
 	/**
 	 * Loads the route data from the specified file, adding them to the currently
 	 * loaded routes Multiple calls to this function, perhaps on different files,
@@ -41,27 +45,32 @@ public class RouteDAO implements IRouteDAO {
 			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = db.parse(arg0.toString());
 
-			Element root = doc.getDocumentElement(); // get root element
+			Element root = doc.getDocumentElement();
 
-			// get a list of the child nodes:
-			NodeList children = root.getChildNodes();
-			for (int i = 0; i < children.getLength(); i++) {
-				Node c = children.item(i);
-				if (c.getNodeName().equals("Route")) {
-					// we found a <Route> element, lets find its title
-					NodeList grandchildren = c.getChildNodes();
-					for (int j = 0; j < grandchildren.getLength(); j++) {
-						Node d = grandchildren.item(j);
-						if (d.getNodeName().contentEquals("FlightNumber")) {
-							System.out.println(d.getChildNodes().item(0).getNodeValue());
-						}
-					}
-				}
+			NodeList routeNodes = root.getElementsByTagName("Route");
+
+			ArrayList<Object> routeData = new ArrayList<>();
+			for (int i = 0; i < routeNodes.getLength(); i++) {
+				routeData.add(routeNodes.item(i).getChildNodes().item(0).getNodeValue());
 			}
+
+			Route temp = new Route();
+			temp.setFlightNumber((int) routeData.get(0));
+			temp.setDayOfWeek((String) routeData.get(1));
+			temp.setDepartureTime((LocalTime) routeData.get(2));
+			temp.setDepartureAirport((String) routeData.get(3));
+			temp.setDepartureAirportCode((String) routeData.get(4));
+			temp.setArrivalTime((LocalTime) routeData.get(5));
+			temp.setArrivalAirport((String) routeData.get(6));
+			temp.setArrivalAirportCode((String) routeData.get(7));
+			temp.setDuration((Duration) routeData.get(8));
+
+			// add route to array of routes
+			arrayOfRoutes.add(temp);
+
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			System.err.println("Error opening XML file: " + e);
 		}
-
 	}
 
 	/**

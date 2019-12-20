@@ -106,7 +106,7 @@ public class CrewDAO implements ICrewDAO {
 
 			globalArrayOfAllCrew.addAll(globalArrayOfCabinCrew);
 			globalArrayOfAllCrew.addAll(globalArrayOfPilots);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new DataLoadingException();
 		}
 
@@ -150,7 +150,8 @@ public class CrewDAO implements ICrewDAO {
 		ArrayList<CabinCrew> tempList = new ArrayList<>();
 
 		for (int i = 0; i < globalArrayOfCabinCrew.size(); i++) {
-			if (globalArrayOfCabinCrew.get(i).getHomeBase().equals(airportCode) && globalArrayOfCabinCrew.get(i).isQualifiedFor(typeCode)) {
+			if (globalArrayOfCabinCrew.get(i).getHomeBase().equals(airportCode)
+					&& globalArrayOfCabinCrew.get(i).isQualifiedFor(typeCode)) {
 				tempList.add(globalArrayOfCabinCrew.get(i));
 			}
 		}
@@ -215,7 +216,8 @@ public class CrewDAO implements ICrewDAO {
 		ArrayList<Pilot> tempList = new ArrayList<>();
 
 		for (int i = 0; i < globalArrayOfPilots.size(); i++) {
-			if (globalArrayOfPilots.get(i).getHomeBase().equals(airportCode) && globalArrayOfPilots.get(i).isQualifiedFor(typeCode)) {
+			if (globalArrayOfPilots.get(i).getHomeBase().equals(airportCode)
+					&& globalArrayOfPilots.get(i).isQualifiedFor(typeCode)) {
 				tempList.add(globalArrayOfPilots.get(i));
 			}
 		}

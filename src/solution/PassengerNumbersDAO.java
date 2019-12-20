@@ -43,7 +43,8 @@ public class PassengerNumbersDAO implements IPassengerNumbersDAO {
 
 			// fetch results:
 			while (rs.next()) {
-				passengers.put(rs.getString("FlightNumber") + "," + rs.getString("Date"), Integer.parseInt(rs.getString("Passengers")));
+				passengers.put(rs.getString("FlightNumber") + "," + rs.getString("Date"),
+						Integer.parseInt(rs.getString("Passengers")));
 			}
 
 			c.close();

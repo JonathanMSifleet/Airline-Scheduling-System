@@ -64,11 +64,13 @@ public class AircraftDAO implements IAircraftDAO {
 					// http://sandbox.kriswelsh.com/advprog/
 
 					// print aircraft data:
-					/*System.out.println("Tail code: " + temp.getTailCode() + ", Type Code: " + temp.getTypeCode()
-							+ ", manufacturer: " + temp.getManufacturer() + ", model: " + temp.getModel() + ", seats: "
-							+ temp.getSeats() + ", cabin crew required: " + temp.getCabinCrewRequired()
-							+ ", start position: " + temp.getStartingPosition());
-					*/
+					/*
+					 * System.out.println("Tail code: " + temp.getTailCode() + ", Type Code: " +
+					 * temp.getTypeCode() + ", manufacturer: " + temp.getManufacturer() +
+					 * ", model: " + temp.getModel() + ", seats: " + temp.getSeats() +
+					 * ", cabin crew required: " + temp.getCabinCrewRequired() +
+					 * ", start position: " + temp.getStartingPosition());
+					 */
 					globalArrayOfAircraft.add(temp);
 					temp = null;
 				} catch (Exception e) {

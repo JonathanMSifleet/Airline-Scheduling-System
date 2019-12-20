@@ -76,7 +76,7 @@ public class RouteDAO implements IRouteDAO {
 				}
 				arrayOfRoutes.add(temp);
 			}
-		} catch (ParserConfigurationException | SAXException | IOException e) {
+		} catch (Exception e) {
 			System.err.println("Error opening XML file: " + e);
 			throw new DataLoadingException();
 		}

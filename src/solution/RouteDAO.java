@@ -2,7 +2,6 @@ package solution;
 
 import java.nio.file.Path;
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -70,10 +69,11 @@ public class RouteDAO implements IRouteDAO {
 					temp.setArrivalAirportCode(routeData.getElementsByTagName("ArrivalAirportCode").item(0).getTextContent());
 					temp.setDuration(java.time.Duration.parse(routeData.getElementsByTagName("Duration").item(0).getTextContent()));
 
-					// add route to array of routes
 				} catch (Exception e) {
 					throw new DataLoadingException();
 				}
+				
+				// add route to array of routes
 				arrayOfRoutes.add(temp);
 			}
 		} catch (ParserConfigurationException | SAXException | IOException e) {

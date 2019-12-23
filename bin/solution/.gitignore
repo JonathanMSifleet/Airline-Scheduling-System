@@ -6,3 +6,8 @@
 /Scheduler.class
 /Test.class
 /test.class
+/Scheduler$CustomComparator.class
+/Scheduler$CompareDate.class
+/Scheduler$CompareRouteDate.class
+/Scheduler$CompareDepartureTime.class
+/Scheduler$1.class

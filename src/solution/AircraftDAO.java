@@ -18,7 +18,7 @@ import java.util.ArrayList; // import the ArrayList class
  */
 public class AircraftDAO implements IAircraftDAO {
 
-	ArrayList<Aircraft> globalArrayOfAircraft = new ArrayList<>();
+	public ArrayList<Aircraft> globalArrayOfAircraft = new ArrayList<>();
 
 	/**
 	 * Loads the aircraft data from the specified file, adding them to the currently

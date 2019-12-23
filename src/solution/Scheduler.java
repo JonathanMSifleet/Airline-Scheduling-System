@@ -1,6 +1,12 @@
 package solution;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import baseclasses.Aircraft;
+import baseclasses.DoubleBookedException;
+import baseclasses.FlightInfo;
 import baseclasses.IAircraftDAO;
 import baseclasses.ICrewDAO;
 import baseclasses.IPassengerNumbersDAO;
@@ -12,8 +18,45 @@ import baseclasses.SchedulerRunner;
 public class Scheduler implements IScheduler {
 
 	@Override
-	public Schedule generateSchedule(IAircraftDAO arg0, ICrewDAO arg1, IRouteDAO arg2, IPassengerNumbersDAO arg3, LocalDate arg4, LocalDate arg5) {
+	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes, IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
 		// TODO Auto-generated method stub
+
+		Schedule schedule = new Schedule(routes, startDate, endDate);
+		schedule.sort();
+
+		List<FlightInfo> remainingAllocations = new ArrayList<>();
+		remainingAllocations = schedule.getRemainingAllocations();
+
+		List<Aircraft> unallocatedAircrafts = new ArrayList<>();
+		unallocatedAircrafts = aircrafts.getAllAircraft();
+
+		for (int i = 0; i < remainingAllocations.size(); i++) {
+
+			// gets flight data
+			int flightNumber = remainingAllocations.get(i).getFlight().getFlightNumber();
+			LocalDate flightDate = remainingAllocations.get(i).getDepartureDateTime().toLocalDate();
+			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
+
+			System.out.println(flightNumber);
+			System.out.println(flightDate);
+			System.out.println(numPassengers);
+
+			// determine smallest valid plane
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, remainingAllocations.get(i), schedule);
+
+			try {
+				schedule.allocateAircraftTo(aircraftToUse, remainingAllocations.get(i));
+				unallocatedAircrafts.remove(aircraftToUse);
+				System.out.println("Aicraft tailcode: " + aircraftToUse.getTailCode());
+				System.out.println();
+
+			} catch (DoubleBookedException e) {
+				// TODO Auto-generated catch block
+
+				e.printStackTrace();
+			}
+		}
+
 		return null;
 	}
 
@@ -26,6 +69,22 @@ public class Scheduler implements IScheduler {
 	@Override
 	public void stop() {
 		// TODO Auto-generated method stub
+
+	}
+
+	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, int numPassengers, FlightInfo thisFlight, Schedule schedule) {
+
+		List<Aircraft> validAircraft = aircrafts.findAircraftBySeats(numPassengers);
+		Aircraft aircraftToUse = new Aircraft();
+
+		aircraftToUse.setSeats(10000);
+		for (Aircraft curAircraft : validAircraft) {
+			if (curAircraft.getSeats() < aircraftToUse.getSeats() && !schedule.hasConflict(curAircraft, thisFlight)) {
+				aircraftToUse = curAircraft;
+			}
+		}
+
+		return aircraftToUse;
 
 	}
 

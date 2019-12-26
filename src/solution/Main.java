@@ -21,7 +21,7 @@ public class Main {
 
 		try {
 			aircrafts.loadAircraftData(Paths.get("./data/schedule_aircraft.csv"));
-			System.out.println("Number of aircraft " + aircrafts.getNumberOfAircraft());
+			//System.out.println("Number of aircraft " + aircrafts.getNumberOfAircraft());
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading aircraft data");
 			dle.printStackTrace();
@@ -31,7 +31,7 @@ public class Main {
 
 		try {
 			crew.loadCrewData(Paths.get("./data/schedule_crew.json"));
-			System.out.println("Number of crew " + (crew.getNumberOfCabinCrew() + crew.getNumberOfPilots()));
+			//System.out.println("Number of crew " + (crew.getNumberOfCabinCrew() + crew.getNumberOfPilots()));
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading crew data");
 			dle.printStackTrace();
@@ -51,7 +51,7 @@ public class Main {
 
 		try {
 			routes.loadRouteData(Paths.get("./data/schedule_routes.xml"));
-			System.out.println("Number of routes: " + routes.getNumberOfRoutes());
+			//System.out.println("Number of routes: " + routes.getNumberOfRoutes());
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading route data");
 			dle.printStackTrace();

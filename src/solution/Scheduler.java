@@ -12,6 +12,7 @@ import baseclasses.ICrewDAO;
 import baseclasses.IPassengerNumbersDAO;
 import baseclasses.IRouteDAO;
 import baseclasses.IScheduler;
+import baseclasses.Pilot;
 import baseclasses.Schedule;
 import baseclasses.SchedulerRunner;
 
@@ -37,16 +38,37 @@ public class Scheduler implements IScheduler {
 			LocalDate flightDate = remainingAllocations.get(i).getDepartureDateTime().toLocalDate();
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
-			System.out.println(flightNumber);
-			System.out.println(flightDate);
-			System.out.println(numPassengers);
+			System.out.println("Flight number: " + flightNumber + ", date: " + flightDate);
+			System.out.println("Departure location: " + remainingAllocations.get(i).getFlight().getDepartureAirportCode());
+			// System.out.println("Passengers: " + numPassengers);
 
 			// determine smallest valid plane
 			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, remainingAllocations.get(i), schedule);
+			System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
+
+			System.out.println("Type code: " + aircraftToUse.getTypeCode());
+
+			List<Pilot> potentialPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
+			// List<Pilot> potentialPilots =
+			// crew.findPilotsByHomeBaseAndTypeRating(aircraftToUse.getStartingPosition(),
+			// aircraftToUse.getTypeCode());
+
+			System.out.println("Potential pilots:");
+
+			if (potentialPilots.size() == 0) {
+				System.out.println("No pilots found in aircraft homebase");
+			}
+
+			for (int j = 0; j < potentialPilots.size(); j++) {
+				System.out.println((j + 1) + ") " + potentialPilots.get(j).getTypeRatings() + ", home base: " + potentialPilots.get(j).getHomeBase());
+			}
 
 			try {
 				schedule.allocateAircraftTo(aircraftToUse, remainingAllocations.get(i));
 				unallocatedAircrafts.remove(aircraftToUse);
+				// schedule.allocateCaptainTo(pilotToUse, remainingAllocations.get(i));
+				// System.out.println(pilotToUse); // aircraftToUse.getTailCode());
+
 				System.out.println("Aicraft tailcode: " + aircraftToUse.getTailCode());
 				System.out.println();
 
@@ -79,7 +101,7 @@ public class Scheduler implements IScheduler {
 
 		aircraftToUse.setSeats(10000);
 		for (Aircraft curAircraft : validAircraft) {
-			if (curAircraft.getSeats() < aircraftToUse.getSeats() && !schedule.hasConflict(curAircraft, thisFlight)) {
+			if (curAircraft.getSeats() < aircraftToUse.getSeats()) { // && !schedule.hasConflict(curAircraft, thisFlight)) {
 				aircraftToUse = curAircraft;
 			}
 		}

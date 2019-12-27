@@ -13,14 +13,20 @@ import baseclasses.IPassengerNumbersDAO;
 import baseclasses.IRouteDAO;
 import baseclasses.IScheduler;
 import baseclasses.Pilot;
+import baseclasses.Pilot.Rank;
 import baseclasses.Schedule;
 import baseclasses.SchedulerRunner;
 
 public class Scheduler implements IScheduler {
 
 	@Override
-	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes, IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
+	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes,
+			IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
 		// TODO Auto-generated method stub
+
+		// creates lists:
+		List<Aircraft> aircraftToRemoveList = aircrafts.findAircraftByType("A320");
+		Aircraft aircraftToRemove = aircraftToRemoveList.get(0);
 
 		Schedule schedule = new Schedule(routes, startDate, endDate);
 		schedule.sort();
@@ -30,53 +36,87 @@ public class Scheduler implements IScheduler {
 
 		List<Aircraft> unallocatedAircrafts = new ArrayList<>();
 		unallocatedAircrafts = aircrafts.getAllAircraft();
+		unallocatedAircrafts.remove(aircrafts.findAircraftByTailCode("A320"));
 
-		for (int i = 0; i < remainingAllocations.size(); i++) {
+		List<Pilot> unallocatedPilots = new ArrayList<>();
+		unallocatedPilots = crew.getAllPilots();
+
+		List<Pilot> unallocatedCaptains = getListOfCaptains(unallocatedPilots);
+		List<Pilot> unallocatedFirstOfficers = getListOfFirstOfficers(unallocatedPilots);
+
+		for (Pilot curPilot : unallocatedCaptains) {
+			System.out.println(curPilot.getSurname());
+		}
+		System.out.println("--------------");
+
+		for (Pilot curPilot : unallocatedFirstOfficers) {
+			System.out.println(curPilot.getSurname());
+		}
+		System.out.println("--------------");
+
+		///////////////
+
+		for (FlightInfo flight : remainingAllocations) {
 
 			// gets flight data
-			int flightNumber = remainingAllocations.get(i).getFlight().getFlightNumber();
-			LocalDate flightDate = remainingAllocations.get(i).getDepartureDateTime().toLocalDate();
+			int flightNumber = flight.getFlight().getFlightNumber();
+			LocalDate flightDate = flight.getDepartureDateTime().toLocalDate();
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
 			System.out.println("Flight number: " + flightNumber + ", date: " + flightDate);
-			System.out.println("Departure location: " + remainingAllocations.get(i).getFlight().getDepartureAirportCode());
-			// System.out.println("Passengers: " + numPassengers);
+			System.out.println("Departure location: " + flight.getFlight().getDepartureAirportCode());
+			/////////////////////
 
 			// determine smallest valid plane
-			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, remainingAllocations.get(i), schedule);
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, flight,
+					schedule);
 			System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
 
 			System.out.println("Type code: " + aircraftToUse.getTypeCode());
+			/////////////////////////////////////
 
-			List<Pilot> potentialPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
-			// List<Pilot> potentialPilots =
-			// crew.findPilotsByHomeBaseAndTypeRating(aircraftToUse.getStartingPosition(),
-			// aircraftToUse.getTypeCode());
+			// get captain
+			List<Pilot> potentialCaptains = new ArrayList<>();
+			potentialCaptains = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
 
-			System.out.println("Potential pilots:");
+			System.out.println("Potential captains: ");
 
-			if (potentialPilots.size() == 0) {
-				System.out.println("No pilots found in aircraft homebase");
+			for (Pilot curPilot : potentialCaptains) {
+				System.out.print(curPilot.getSurname() + ", ");
 			}
+			System.out.println();
 
-			for (int j = 0; j < potentialPilots.size(); j++) {
-				System.out.println((j + 1) + ") " + potentialPilots.get(j).getTypeRatings() + ", home base: " + potentialPilots.get(j).getHomeBase());
+			Pilot pilotToUse = new Pilot();
+			try {
+				pilotToUse = potentialCaptains.get(0);
+			} catch (Exception e) {
+				System.out.println("No captains found");
 			}
+			/////////////////////
+
+			// get first officer:
+
+			////////////////
 
 			try {
-				schedule.allocateAircraftTo(aircraftToUse, remainingAllocations.get(i));
+				schedule.allocateAircraftTo(aircraftToUse, flight);
 				unallocatedAircrafts.remove(aircraftToUse);
-				// schedule.allocateCaptainTo(pilotToUse, remainingAllocations.get(i));
-				// System.out.println(pilotToUse); // aircraftToUse.getTailCode());
 
-				System.out.println("Aicraft tailcode: " + aircraftToUse.getTailCode());
-				System.out.println();
+				schedule.allocateCaptainTo(pilotToUse, flight);
+				unallocatedPilots.remove(pilotToUse);
 
+				/*
+				 * to do: schedule.allocateFirstOfficerTo(firstOfficer, flight);
+				 * schedule.allocateCabinCrewTo(crew, flight);
+				 */
 			} catch (DoubleBookedException e) {
 				// TODO Auto-generated catch block
 
 				e.printStackTrace();
 			}
+
+			System.out.println("----------");
+
 		}
 
 		return null;
@@ -94,14 +134,17 @@ public class Scheduler implements IScheduler {
 
 	}
 
-	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, int numPassengers, FlightInfo thisFlight, Schedule schedule) {
+	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, Aircraft aircraftToRemove, int numPassengers,
+			FlightInfo thisFlight, Schedule schedule) {
 
 		List<Aircraft> validAircraft = aircrafts.findAircraftBySeats(numPassengers);
+		validAircraft.remove(aircraftToRemove);
+
 		Aircraft aircraftToUse = new Aircraft();
 
 		aircraftToUse.setSeats(10000);
 		for (Aircraft curAircraft : validAircraft) {
-			if (curAircraft.getSeats() < aircraftToUse.getSeats()) { // && !schedule.hasConflict(curAircraft, thisFlight)) {
+			if (curAircraft.getSeats() < aircraftToUse.getSeats()) {
 				aircraftToUse = curAircraft;
 			}
 		}
@@ -110,4 +153,37 @@ public class Scheduler implements IScheduler {
 
 	}
 
+	List<Pilot> getListOfFirstOfficers(List<Pilot> unallocatedPilots) {
+
+		List<Pilot> listOfFirstOfficers = new ArrayList<>();
+
+		for (Pilot curPilot : unallocatedPilots) {
+			if (curPilot.getRank() == Rank.FIRST_OFFICER) {
+				listOfFirstOfficers.add(curPilot);
+			}
+		}
+
+		return listOfFirstOfficers;
+	}
+
+	List<Pilot> getListOfCaptains(List<Pilot> unallocatedPilots) {
+
+		List<Pilot> listOfCaptains = new ArrayList<>();
+
+		for (Pilot curPilot : unallocatedPilots) {
+			if (curPilot.getRank() == Rank.CAPTAIN) {
+				listOfCaptains.add(curPilot);
+			}
+		}
+
+		return listOfCaptains;
+	}
+
+	void printPilotTypeRatings(List<Pilot> unallocatedPilots) {
+		System.out.println("Pilots:");
+		for (Pilot curPilot : unallocatedPilots) {
+			System.out.println(curPilot.getTypeRatings() + ", " + curPilot.getSurname());
+		}
+		System.out.println();
+	}
 }

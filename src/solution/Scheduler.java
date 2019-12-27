@@ -75,7 +75,6 @@ public class Scheduler implements IScheduler {
 			////////////////
 
 			// get list of cabin crew:
-
 			int numCrew = aircraftToUse.getCabinCrewRequired();
 			System.out.println("Number of crew required: " + numCrew);
 
@@ -84,11 +83,12 @@ public class Scheduler implements IScheduler {
 
 			CabinCrew memberToUse = new CabinCrew();
 			List<CabinCrew> suitableCrew = intersectCC(validCabinCrew, unallocatedCabinCrew);
+
 			for (int j = 0; j < numCrew; j++) {
-				memberToUse = suitableCrew.get(0);
+				memberToUse = suitableCrew.get(j);
 				cabinCrewToUse.add(memberToUse);
-				unallocatedCabinCrew.remove(memberToUse);
-				suitableCrew.remove(memberToUse);
+				//suitableCrew.remove(memberToUse);
+				//unallocatedCabinCrew.remove(memberToUse);
 			}
 
 			///////////////
@@ -126,7 +126,7 @@ public class Scheduler implements IScheduler {
 
 		}
 
-		return null;
+		return schedule;
 	}
 
 	@Override

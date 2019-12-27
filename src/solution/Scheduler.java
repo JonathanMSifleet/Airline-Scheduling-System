@@ -45,6 +45,7 @@ public class Scheduler implements IScheduler {
 		///////////////
 
 		for (FlightInfo flight : remainingAllocations) {
+			// for (int j = 0; j < remainingAllocations.size(); j++) {
 
 			// gets flight data
 			int flightNumber = flight.getFlight().getFlightNumber();
@@ -74,12 +75,22 @@ public class Scheduler implements IScheduler {
 			////////////////
 
 			// get list of cabin crew:
-			int numCrew = aircraftToUse.getCabinCrewRequired();
-			List<CabinCrew> cabinCrewToUse = determineCabinCrew(crew, aircraftToUse, unallocatedCabinCrew, numCrew);
 
-			for (CabinCrew curCrew : cabinCrewToUse) {
-				System.out.println(curCrew.getSurname());
+			int numCrew = aircraftToUse.getCabinCrewRequired();
+			System.out.println("Number of crew required: " + numCrew);
+
+			List<CabinCrew> validCabinCrew = crew.findCabinCrewByTypeRating(aircraftToUse.getTypeCode());
+			List<CabinCrew> cabinCrewToUse = new ArrayList<>();
+
+			CabinCrew memberToUse = new CabinCrew();
+			List<CabinCrew> suitableCrew = intersectCC(validCabinCrew, unallocatedCabinCrew);
+			for (int j = 0; j < numCrew; j++) {
+				memberToUse = suitableCrew.get(0);
+				cabinCrewToUse.add(memberToUse);
+				unallocatedCabinCrew.remove(memberToUse);
+				suitableCrew.remove(memberToUse);
 			}
+
 			///////////////
 
 			try {
@@ -91,9 +102,14 @@ public class Scheduler implements IScheduler {
 
 				schedule.allocateFirstOfficerTo(firstOfficerToUse, flight);
 				System.out.println("FO to use: " + firstOfficerToUse.getSurname());
+				System.out.println("Cabin crew to use: ");
+
+				int i = 1;
 
 				for (CabinCrew curCrew : cabinCrewToUse) {
 					schedule.allocateCabinCrewTo(curCrew, flight);
+					System.out.print(i + ") " + curCrew.getSurname() + ", ");
+					i++;
 				}
 
 				schedule.completeAllocationFor(flight);
@@ -105,7 +121,7 @@ public class Scheduler implements IScheduler {
 
 				e.printStackTrace();
 			}
-
+			System.out.println();
 			System.out.println("----------");
 
 		}
@@ -154,9 +170,9 @@ public class Scheduler implements IScheduler {
 		/*
 		 * List<Pilot> allCaptains = getListOfCaptains(unallocatedPilots);
 		 * 
-		 * List<Pilot> potentialCaptains = intersectPilots(validPilots, allCaptains);
+		 * List<Pilot> suitableCaptains = intersectPilots(validPilots, allCaptains);
 		 * 
-		 * try { return potentialCaptains.get(0); } catch (Exception e) {
+		 * try { return suitableCaptains.get(0); } catch (Exception e) {
 		 * System.out.println("No captains found"); return null; }
 		 */
 	}
@@ -171,34 +187,11 @@ public class Scheduler implements IScheduler {
 		/*
 		 * List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
 		 * 
-		 * List<Pilot> potentialFOs = intersectFOs(validPilots, allCaptains);
+		 * List<Pilot> suitableFOs = intersectFOs(validPilots, allCaptains);
 		 * 
-		 * try { return potentialFOs.get(0); } catch (Exception e) {
+		 * try { return suitableFOs.get(0); } catch (Exception e) {
 		 * System.out.println("No FOs found"); return null; }
 		 */
-	}
-
-	List<CabinCrew> determineCabinCrew(ICrewDAO crew, Aircraft aircraftToUse, List<CabinCrew> unallocatedCabinCrew,
-			int numCrew) {
-
-		List<CabinCrew> cabinCrewToUse = new ArrayList<>();
-
-		int crewRemaining = numCrew;
-
-		while (crewRemaining > 0) {
-
-			for (int i = 0; i < unallocatedCabinCrew.size(); i++) {
-				if (unallocatedCabinCrew.get(i).isQualifiedFor(aircraftToUse)) {
-					cabinCrewToUse.add(unallocatedCabinCrew.get(i));
-					unallocatedCabinCrew.remove(unallocatedCabinCrew.get(i));
-					crewRemaining--;
-					break;
-				}
-			}
-
-		}
-
-		return cabinCrewToUse;
 	}
 
 	List<Pilot> getListOfFirstOfficers(List<Pilot> unallocatedPilots) {
@@ -231,9 +224,9 @@ public class Scheduler implements IScheduler {
 
 		List<Pilot> intersectList = new ArrayList<>();
 
-		for (Pilot curObject : validPilots) {
-			if (allCaptains.contains(curObject)) {
-				intersectList.add(curObject);
+		for (Pilot curPilot : validPilots) {
+			if (allCaptains.contains(curPilot)) {
+				intersectList.add(curPilot);
 			}
 		}
 
@@ -245,9 +238,23 @@ public class Scheduler implements IScheduler {
 
 		List<Pilot> intersectList = new ArrayList<>();
 
-		for (Pilot curObject : validPilots) {
-			if (allFOs.contains(curObject)) {
-				intersectList.add(curObject);
+		for (Pilot curFO : validPilots) {
+			if (allFOs.contains(curFO)) {
+				intersectList.add(curFO);
+			}
+		}
+
+		return intersectList;
+
+	}
+
+	List<CabinCrew> intersectCC(List<CabinCrew> validCabinCrew, List<CabinCrew> unallocatedCabinCrew) {
+
+		List<CabinCrew> intersectList = new ArrayList<>();
+
+		for (CabinCrew curCabinCrew : unallocatedCabinCrew) {
+			if (validCabinCrew.contains(curCabinCrew)) {
+				intersectList.add(curCabinCrew);
 			}
 		}
 

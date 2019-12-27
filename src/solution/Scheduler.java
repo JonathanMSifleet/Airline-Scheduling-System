@@ -41,19 +41,6 @@ public class Scheduler implements IScheduler {
 		List<Pilot> unallocatedPilots = new ArrayList<>();
 		unallocatedPilots = crew.getAllPilots();
 
-		List<Pilot> unallocatedCaptains = getListOfCaptains(unallocatedPilots);
-		List<Pilot> unallocatedFirstOfficers = getListOfFirstOfficers(unallocatedPilots);
-
-		for (Pilot curPilot : unallocatedCaptains) {
-			System.out.println(curPilot.getSurname());
-		}
-		System.out.println("--------------");
-
-		for (Pilot curPilot : unallocatedFirstOfficers) {
-			System.out.println(curPilot.getSurname());
-		}
-		System.out.println("--------------");
-
 		///////////////
 
 		for (FlightInfo flight : remainingAllocations) {
@@ -75,44 +62,38 @@ public class Scheduler implements IScheduler {
 			System.out.println("Type code: " + aircraftToUse.getTypeCode());
 			/////////////////////////////////////
 
-			// get captain
-			List<Pilot> potentialCaptains = new ArrayList<>();
-			potentialCaptains = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
-
-			System.out.println("Potential captains: ");
-
-			for (Pilot curPilot : potentialCaptains) {
-				System.out.print(curPilot.getSurname() + ", ");
-			}
-			System.out.println();
-
-			Pilot pilotToUse = new Pilot();
-			try {
-				pilotToUse = potentialCaptains.get(0);
-			} catch (Exception e) {
-				System.out.println("No captains found");
-			}
+			// get captain:
+			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots);
 			/////////////////////
 
-			// get first officer:
+			unallocatedPilots.remove(captainToUse);
 
+			// get first officer:
+			Pilot firstOfficerToUse = determineFirstOfficer(crew, aircraftToUse, unallocatedPilots);
 			////////////////
+			
+			// get list of cabin crew:
+			//List<CabinCrew>
+			//
 
 			try {
 				schedule.allocateAircraftTo(aircraftToUse, flight);
 				unallocatedAircrafts.remove(aircraftToUse);
 
-				schedule.allocateCaptainTo(pilotToUse, flight);
-				unallocatedPilots.remove(pilotToUse);
+				schedule.allocateCaptainTo(captainToUse, flight);
+				System.out.println("Captain to use: " + captainToUse.getSurname());
 
-				/*
-				 * to do: schedule.allocateFirstOfficerTo(firstOfficer, flight);
-				 * schedule.allocateCabinCrewTo(crew, flight);
-				 */
+				schedule.allocateFirstOfficerTo(firstOfficerToUse, flight);
+				System.out.println("FO to use: " + firstOfficerToUse.getSurname());
+
+				// to do: schedule.allocateCabinCrewTo(crew, flight);
+
 			} catch (DoubleBookedException e) {
 				// TODO Auto-generated catch block
 
-				e.printStackTrace();
+				System.out.println(e.toString());
+
+				// e.printStackTrace();
 			}
 
 			System.out.println("----------");
@@ -153,6 +134,40 @@ public class Scheduler implements IScheduler {
 
 	}
 
+	Pilot determineCaptain(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots) {
+		// get captain
+		List<Pilot> validPilots = new ArrayList<>();
+		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
+
+		return validPilots.get(0);
+
+		/*
+		 * List<Pilot> allCaptains = getListOfCaptains(unallocatedPilots);
+		 * 
+		 * List<Pilot> potentialCaptains = intersectPilots(validPilots, allCaptains);
+		 * 
+		 * try { return potentialCaptains.get(0); } catch (Exception e) {
+		 * System.out.println("No captains found"); return null; }
+		 */
+	}
+
+	Pilot determineFirstOfficer(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots) {
+		// get captain
+		List<Pilot> validPilots = new ArrayList<>();
+		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
+
+		return validPilots.get(0);
+
+		/*
+		 * List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
+		 * 
+		 * List<Pilot> potentialFOs = intersectFOs(validPilots, allCaptains);
+		 * 
+		 * try { return potentialFOs.get(0); } catch (Exception e) {
+		 * System.out.println("No FOs found"); return null; }
+		 */
+	}
+
 	List<Pilot> getListOfFirstOfficers(List<Pilot> unallocatedPilots) {
 
 		List<Pilot> listOfFirstOfficers = new ArrayList<>();
@@ -179,11 +194,31 @@ public class Scheduler implements IScheduler {
 		return listOfCaptains;
 	}
 
-	void printPilotTypeRatings(List<Pilot> unallocatedPilots) {
-		System.out.println("Pilots:");
-		for (Pilot curPilot : unallocatedPilots) {
-			System.out.println(curPilot.getTypeRatings() + ", " + curPilot.getSurname());
+	List<Pilot> intersectPilots(List<Pilot> validPilots, List<Pilot> allCaptains) {
+
+		List<Pilot> intersectList = new ArrayList<>();
+
+		for (Pilot curObject : validPilots) {
+			if (allCaptains.contains(curObject)) {
+				intersectList.add(curObject);
+			}
 		}
-		System.out.println();
+
+		return intersectList;
+
+	}
+
+	List<Pilot> intersectFOs(List<Pilot> validPilots, List<Pilot> allFOs) {
+
+		List<Pilot> intersectList = new ArrayList<>();
+
+		for (Pilot curObject : validPilots) {
+			if (allFOs.contains(curObject)) {
+				intersectList.add(curObject);
+			}
+		}
+
+		return intersectList;
+
 	}
 }

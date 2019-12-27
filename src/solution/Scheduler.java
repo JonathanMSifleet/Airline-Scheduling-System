@@ -36,7 +36,7 @@ public class Scheduler implements IScheduler {
 
 		List<FlightInfo> remainingAllocations = schedule.getRemainingAllocations();
 
-		for (FlightInfo flight : remainingAllocations) {
+		for (int i = 0; i < remainingAllocations.size(); i++) {
 
 			List<Aircraft> unallocatedAircrafts = aircrafts.getAllAircraft();
 			unallocatedAircrafts.remove(aircrafts.findAircraftByTailCode("A320"));
@@ -45,24 +45,26 @@ public class Scheduler implements IScheduler {
 
 			List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
 
-			///////////////
-
 			// gets flight data
-			int flightNumber = flight.getFlight().getFlightNumber();
-			LocalDate flightDate = flight.getDepartureDateTime().toLocalDate();
+			int flightNumber = remainingAllocations.get(i).getFlight().getFlightNumber();
+			LocalDate flightDate = remainingAllocations.get(i).getDepartureDateTime().toLocalDate();
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
 			System.out.println("Flight number: " + flightNumber + ", date: " + flightDate);
-			System.out.println("Departure location: " + flight.getFlight().getDepartureAirportCode());
+			System.out.println(
+					"Departure location: " + remainingAllocations.get(i).getFlight().getDepartureAirportCode());
 			/////////////////////
 
 			// determine smallest valid plane
-			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, flight,
-					schedule);
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers,
+					remainingAllocations.get(i), schedule);
 			System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
 
 			System.out.println("Type code: " + aircraftToUse.getTypeCode());
 			/////////////////////////////////////
+
+			System.out.println(
+					"Number of passengers: " + numPassengers + ", number of seats: " + aircraftToUse.getSeats());
 
 			// get captain:
 			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots);
@@ -83,49 +85,39 @@ public class Scheduler implements IScheduler {
 
 			List<CabinCrew> suitableCrew = intersectCC(validCabinCrew, unallocatedCabinCrew);
 
-			/* for (CabinCrew curCrew : suitableCrew) {
-				System.out.println(curCrew.getSurname());
-			} */
-
-			// from suitable crew, choose the first x where x = numCrew
-			for (int i = 0; i < numCrew; i++) {
-				cabinCrewToUse.add(suitableCrew.get(i));
+			for (int k = 0; k < numCrew; k++) {
+				cabinCrewToUse.add(suitableCrew.get(k));
 			}
-
 			///////////////
 
 			try {
-				schedule.allocateAircraftTo(aircraftToUse, flight);
+				schedule.allocateAircraftTo(aircraftToUse, remainingAllocations.get(i));
 				unallocatedAircrafts.remove(aircraftToUse);
 
-				schedule.allocateCaptainTo(captainToUse, flight);
+				schedule.allocateCaptainTo(captainToUse, remainingAllocations.get(i));
 				System.out.println("Captain to use: " + captainToUse.getSurname());
 
-				schedule.allocateFirstOfficerTo(firstOfficerToUse, flight);
+				schedule.allocateFirstOfficerTo(firstOfficerToUse, remainingAllocations.get(i));
 				System.out.println("FO to use: " + firstOfficerToUse.getSurname());
 				System.out.println("Cabin crew to use: ");
 
-				int i = 1;
-
-				for (CabinCrew curCrew : cabinCrewToUse) {
-					schedule.allocateCabinCrewTo(curCrew, flight);
-					System.out.print(i + ") " + curCrew.getSurname() + ", ");
-					i++;
+				for (int j = 0; j < cabinCrewToUse.size(); j++) { // curCrew : cabinCrewToUse) {
+					schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), remainingAllocations.get(i));
+					System.out.print(cabinCrewToUse.get(j).getSurname() + ", ");
 				}
 
 				System.out.println();
-				System.out.println("All requirements allocated, but allocation not completed");
 
-				//schedule.completeAllocationFor(flight);
+				schedule.completeAllocationFor(remainingAllocations.get(i));
+				System.out.println("Flight allocated");
 
-			} catch (DoubleBookedException e) {
+			} catch (DoubleBookedException | InvalidAllocationException e) {
 				// TODO Auto-generated catch block
 
 				// System.out.println(e.toString());
 
 				e.printStackTrace();
 			}
-			System.out.println();
 			System.out.println("----------");
 
 		}

@@ -2,6 +2,7 @@ package solution;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import baseclasses.Aircraft;
@@ -35,17 +36,16 @@ public class Scheduler implements IScheduler {
 
 		List<FlightInfo> remainingAllocations = schedule.getRemainingAllocations();
 
-		List<Aircraft> unallocatedAircrafts = aircrafts.getAllAircraft();
-		unallocatedAircrafts.remove(aircrafts.findAircraftByTailCode("A320"));
-
-		List<Pilot> unallocatedPilots = crew.getAllPilots();
-
-		List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
-
-		///////////////
-
 		for (FlightInfo flight : remainingAllocations) {
-			// for (int j = 0; j < remainingAllocations.size(); j++) {
+
+			List<Aircraft> unallocatedAircrafts = aircrafts.getAllAircraft();
+			unallocatedAircrafts.remove(aircrafts.findAircraftByTailCode("A320"));
+
+			List<Pilot> unallocatedPilots = crew.getAllPilots();
+
+			List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
+
+			///////////////
 
 			// gets flight data
 			int flightNumber = flight.getFlight().getFlightNumber();
@@ -81,14 +81,15 @@ public class Scheduler implements IScheduler {
 			List<CabinCrew> validCabinCrew = crew.findCabinCrewByTypeRating(aircraftToUse.getTypeCode());
 			List<CabinCrew> cabinCrewToUse = new ArrayList<>();
 
-			CabinCrew memberToUse = new CabinCrew();
 			List<CabinCrew> suitableCrew = intersectCC(validCabinCrew, unallocatedCabinCrew);
 
-			for (int j = 0; j < numCrew; j++) {
-				memberToUse = suitableCrew.get(j);
-				cabinCrewToUse.add(memberToUse);
-				//suitableCrew.remove(memberToUse);
-				//unallocatedCabinCrew.remove(memberToUse);
+			/* for (CabinCrew curCrew : suitableCrew) {
+				System.out.println(curCrew.getSurname());
+			} */
+
+			// from suitable crew, choose the first x where x = numCrew
+			for (int i = 0; i < numCrew; i++) {
+				cabinCrewToUse.add(suitableCrew.get(i));
 			}
 
 			///////////////
@@ -112,9 +113,12 @@ public class Scheduler implements IScheduler {
 					i++;
 				}
 
-				schedule.completeAllocationFor(flight);
+				System.out.println();
+				System.out.println("All requirements allocated, but allocation not completed");
 
-			} catch (DoubleBookedException | InvalidAllocationException e) {
+				//schedule.completeAllocationFor(flight);
+
+			} catch (DoubleBookedException e) {
 				// TODO Auto-generated catch block
 
 				// System.out.println(e.toString());

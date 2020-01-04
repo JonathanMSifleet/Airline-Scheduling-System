@@ -261,13 +261,13 @@ public class CrewDAO implements ICrewDAO {
 	@Override
 	public List<Pilot> getAllPilots() {
 		// TODO Auto-generated method stub
-		
+
 		List<Pilot> tempAllPilots = new ArrayList<>();
 
 		tempAllPilots.addAll(globalArrayOfPilots);
 
 		return tempAllPilots;
-		
+
 	}
 
 	@Override

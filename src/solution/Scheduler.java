@@ -15,6 +15,7 @@ import baseclasses.IRouteDAO;
 import baseclasses.IScheduler;
 import baseclasses.Pilot;
 import baseclasses.Pilot.Rank;
+import baseclasses.QualityScoreCalculator;
 import baseclasses.Schedule;
 import baseclasses.SchedulerRunner;
 
@@ -108,15 +109,21 @@ public class Scheduler implements IScheduler {
 				validAllocations--;
 				e.printStackTrace();
 			}
-			System.out.println("----------");
+			System.out.println("---------");
 		}
 		System.out.println("Valid allocations: " + validAllocations);
 
-		/*
-		 * if(validAllocations ==32) {
-		 * System.out.println("Score:" + schedule.calculateQualityScore());
-		 * }
-		 */
+		if (validAllocations == 32) {
+			QualityScoreCalculator score = new QualityScoreCalculator(aircrafts, crew, passengerNumbers, schedule);
+			System.out.println("Score:" + score.calculateQualityScore());
+
+			String[] describeScore = score.describeQualityScore();
+
+			for (String curLine : describeScore) {
+				System.out.println(curLine);
+			}
+
+		}
 
 		return schedule;
 

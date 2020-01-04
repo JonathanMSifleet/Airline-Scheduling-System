@@ -35,9 +35,9 @@ public class Scheduler implements IScheduler {
 		List<FlightInfo> allAllocations = new ArrayList<>();
 		allAllocations.addAll(remainingAllocations);
 		int numAllocations = allAllocations.size();
-		int validAllocations = numAllocations;
 
 		for (int i = 0; i < numAllocations; i++) {
+			System.out.println("i: " + i + ", all allocations: " + allAllocations.size());
 
 			List<Pilot> unallocatedPilots = crew.getAllPilots();
 			List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
@@ -72,15 +72,14 @@ public class Scheduler implements IScheduler {
 				}
 
 				schedule.completeAllocationFor(allAllocations.get(i));
-				System.out.println("----------");
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				validAllocations--;
+
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Valid alloactions: " + validAllocations);
+		System.out.println("----------");
 		return schedule;
 
 	}
@@ -99,12 +98,10 @@ public class Scheduler implements IScheduler {
 
 	void printFlightTelemetry(List<FlightInfo> allAllocations, int i, int flightNumber, LocalDate flightDate, Aircraft aircraftToUse, int numPassengers, Pilot captainToUse, Pilot firstOfficerToUse, List<CabinCrew> cabinCrewToUse) {
 		System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
-		/*
-		 * System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
-		 * System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
-		 * System.out.println("Type code: " + aircraftToUse.getTypeCode());
-		 * System.out.println("Tail code: " + aircraftToUse.getTailCode());
-		 */
+		System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
+		System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
+		System.out.println("Type code: " + aircraftToUse.getTypeCode());
+		System.out.println("Tail code: " + aircraftToUse.getTailCode());
 		System.out.println("Number of passengers: " + numPassengers + ", number of seats: " + aircraftToUse.getSeats());
 		System.out.println("Number of crew required: " + aircraftToUse.getCabinCrewRequired());
 		System.out.println("Captain to use: " + captainToUse.getSurname());
@@ -113,13 +110,12 @@ public class Scheduler implements IScheduler {
 		for (CabinCrew curCrew : cabinCrewToUse) {
 			System.out.print(curCrew.getSurname() + ", ");
 		}
-		System.out.println();
 	}
 
 	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, Aircraft aircraftToRemove, int numPassengers, FlightInfo thisFlight, Schedule schedule) {
 
 		List<Aircraft> validAircraft = aircrafts.findAircraftBySeats(numPassengers);
-		// validAircraft.remove(aircraftToRemove);
+		validAircraft.remove(aircraftToRemove);
 
 		Aircraft aircraftToUse = new Aircraft();
 
@@ -155,21 +151,15 @@ public class Scheduler implements IScheduler {
 		List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
 		List<Pilot> suitableFOs = intersectFOs(validPilots, allFOs);
 
-		List<Pilot> tempUnallocated = new ArrayList<>();
-
-		tempUnallocated.addAll(unallocatedPilots);
-		tempUnallocated.remove(captainToUse);
-
 		int i = 0;
 		do {
-			try {
-				if (suitableFOs.get(i) != captainToUse) {
-					return suitableFOs.get(i);
-				}
-			} catch (Exception e) {
-				return tempUnallocated.get(0);
+			if (suitableFOs.get(i) != captainToUse) {
+				// try {
+				return suitableFOs.get(i);
+				// } catch (Exception e) {
+				// return unallocatedPilots.get(0);
+				// }
 			}
-
 			i++;
 		} while (true);
 

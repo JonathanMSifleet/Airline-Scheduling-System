@@ -34,8 +34,8 @@ public class Main {
 		try {
 			crew.loadCrewData(Paths.get("./data/schedule_crew.json"));
 			// crew.loadCrewData(Paths.get("./data/crew.json"));
-			// System.out.println("Number of crew " + (crew.getNumberOfCabinCrew() +
-			// crew.getNumberOfPilots()));
+			// System.out.println("Number of crew " + (crew.getNumberOfCabinCrew());
+			// System.out.println("Number of pilots: " + crew.getNumberOfPilots());
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading crew data");
 			dle.printStackTrace();

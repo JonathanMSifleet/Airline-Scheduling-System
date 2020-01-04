@@ -23,61 +23,65 @@ public class Scheduler implements IScheduler {
 	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes, IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
 		// TODO Auto-generated method stub
 
+		Schedule schedule = new Schedule(routes, startDate, endDate);
+
 		// creates lists:
 		List<Aircraft> aircraftToRemoveList = aircrafts.findAircraftByType("A320");
 		Aircraft aircraftToRemove = aircraftToRemoveList.get(0);
 
-		Schedule schedule = new Schedule(routes, startDate, endDate);
 		schedule.sort();
 
 		List<FlightInfo> remainingAllocations = schedule.getRemainingAllocations();
+		List<FlightInfo> allAllocations = new ArrayList<>();
+		allAllocations.addAll(remainingAllocations);
+		int numAllocations = allAllocations.size();
 
-		for (int i = 0; i < 32; i++) {
+		for (int i = 0; i < numAllocations; i++) {
+			System.out.println("i: " + i + ", all allocations: " + allAllocations.size());
 
 			List<Pilot> unallocatedPilots = crew.getAllPilots();
 			List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
 
 			// gets flight data
-			int flightNumber = remainingAllocations.get(i).getFlight().getFlightNumber();
-			LocalDate flightDate = remainingAllocations.get(i).getDepartureDateTime().toLocalDate();
+			int flightNumber = allAllocations.get(i).getFlight().getFlightNumber();
+			LocalDate flightDate = allAllocations.get(i).getDepartureDateTime().toLocalDate();
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
-			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, remainingAllocations.get(i), schedule);
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, allAllocations.get(i), schedule);
 			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots);
 			Pilot firstOfficerToUse = determineFirstOfficer(crew, aircraftToUse, unallocatedPilots, captainToUse);
 			List<CabinCrew> cabinCrewToUse = determineSuitableCabinCrew(crew, aircraftToUse, unallocatedCabinCrew);
 
-			printFlightTelemetry(remainingAllocations, i, flightNumber, flightDate, aircraftToUse, numPassengers, captainToUse, firstOfficerToUse, cabinCrewToUse);
+			printFlightTelemetry(allAllocations, i, flightNumber, flightDate, aircraftToUse, numPassengers, captainToUse, firstOfficerToUse, cabinCrewToUse);
 
 			try {
-				schedule.allocateAircraftTo(aircraftToUse, remainingAllocations.get(i));
-				schedule.allocateCaptainTo(captainToUse, remainingAllocations.get(i));
-				schedule.allocateFirstOfficerTo(firstOfficerToUse, remainingAllocations.get(i));
+				schedule.allocateAircraftTo(aircraftToUse, allAllocations.get(i));
+				schedule.allocateCaptainTo(captainToUse, allAllocations.get(i));
+				schedule.allocateFirstOfficerTo(firstOfficerToUse, allAllocations.get(i));
 
 				for (int j = 0; j < cabinCrewToUse.size(); j++) {
-					schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), remainingAllocations.get(i));
+					schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), allAllocations.get(i));
 				}
 
 				System.out.println();
 
-				if (schedule.isValid(remainingAllocations.get(i))) {
+				if (schedule.isValid(allAllocations.get(i))) {
 					System.out.println("Flight allocated");
 				} else {
 					System.out.println("Flight not valid");
 				}
 
-				schedule.completeAllocationFor(remainingAllocations.get(i));
+				schedule.completeAllocationFor(allAllocations.get(i));
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 
 				e.printStackTrace();
 			}
-			System.out.println("----------");
-
 		}
-
+		System.out.println("----------");
 		return schedule;
+
 	}
 
 	@Override
@@ -92,9 +96,9 @@ public class Scheduler implements IScheduler {
 
 	}
 
-	void printFlightTelemetry(List<FlightInfo> remainingAllocations, int i, int flightNumber, LocalDate flightDate, Aircraft aircraftToUse, int numPassengers, Pilot captainToUse, Pilot firstOfficerToUse, List<CabinCrew> cabinCrewToUse) {
+	void printFlightTelemetry(List<FlightInfo> allAllocations, int i, int flightNumber, LocalDate flightDate, Aircraft aircraftToUse, int numPassengers, Pilot captainToUse, Pilot firstOfficerToUse, List<CabinCrew> cabinCrewToUse) {
 		System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
-		System.out.println("Departure location: " + remainingAllocations.get(i).getFlight().getDepartureAirportCode());
+		System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
 		System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
 		System.out.println("Type code: " + aircraftToUse.getTypeCode());
 		System.out.println("Tail code: " + aircraftToUse.getTailCode());

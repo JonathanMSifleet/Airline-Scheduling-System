@@ -2,19 +2,16 @@ package solution;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import baseclasses.Aircraft;
 import baseclasses.CabinCrew;
-import baseclasses.DoubleBookedException;
 import baseclasses.FlightInfo;
 import baseclasses.IAircraftDAO;
 import baseclasses.ICrewDAO;
 import baseclasses.IPassengerNumbersDAO;
 import baseclasses.IRouteDAO;
 import baseclasses.IScheduler;
-import baseclasses.InvalidAllocationException;
 import baseclasses.Pilot;
 import baseclasses.Pilot.Rank;
 import baseclasses.Schedule;
@@ -23,8 +20,7 @@ import baseclasses.SchedulerRunner;
 public class Scheduler implements IScheduler {
 
 	@Override
-	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes,
-			IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
+	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes, IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
 		// TODO Auto-generated method stub
 
 		// creates lists:
@@ -50,20 +46,17 @@ public class Scheduler implements IScheduler {
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
 			System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
-			System.out.println(
-					"Departure location: " + remainingAllocations.get(i).getFlight().getDepartureAirportCode());
+			System.out.println("Departure location: " + remainingAllocations.get(i).getFlight().getDepartureAirportCode());
 			/////////////////////
 
 			// determine smallest valid plane
-			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers,
-					remainingAllocations.get(i), schedule);
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, remainingAllocations.get(i), schedule);
 			System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
 
 			System.out.println("Type code: " + aircraftToUse.getTypeCode());
 			/////////////////////////////////////
 
-			System.out.println(
-					"Number of passengers: " + numPassengers + ", number of seats: " + aircraftToUse.getSeats());
+			System.out.println("Number of passengers: " + numPassengers + ", number of seats: " + aircraftToUse.getSeats());
 
 			// get captain:
 			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots);
@@ -109,7 +102,7 @@ public class Scheduler implements IScheduler {
 				schedule.completeAllocationFor(remainingAllocations.get(i));
 				System.out.println("Flight allocated");
 
-			} catch (DoubleBookedException | InvalidAllocationException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 
 				// System.out.println(e.toString());
@@ -135,8 +128,7 @@ public class Scheduler implements IScheduler {
 
 	}
 
-	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, Aircraft aircraftToRemove, int numPassengers,
-			FlightInfo thisFlight, Schedule schedule) {
+	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, Aircraft aircraftToRemove, int numPassengers, FlightInfo thisFlight, Schedule schedule) {
 
 		List<Aircraft> validAircraft = aircrafts.findAircraftBySeats(numPassengers);
 		validAircraft.remove(aircraftToRemove);
@@ -159,39 +151,30 @@ public class Scheduler implements IScheduler {
 		List<Pilot> validPilots = new ArrayList<>();
 		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
 
+		List<Pilot> allCaptains = getListOfCaptains(unallocatedPilots);
+		List<Pilot> suitableCaptains = intersectPilots(validPilots, allCaptains);
 		try {
-			return validPilots.get(0);
-		} catch (IndexOutOfBoundsException e) {
-			validPilots = crew.getAllPilots();
-			return validPilots.get(0);
+			return suitableCaptains.get(0);
+		} catch (Exception e) {
+			return unallocatedPilots.get(0);
 		}
 
-		/*
-		 * List<Pilot> allCaptains = getListOfCaptains(unallocatedPilots); List<Pilot>
-		 * suitableCaptains = intersectPilots(validPilots, allCaptains); try { return
-		 * suitableCaptains.get(0); } catch (Exception e) {
-		 * System.out.println("No captains found"); return null; }
-		 */
 	}
 
 	Pilot determineFirstOfficer(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots) {
-		// get captain
+		// get FO
 		List<Pilot> validPilots = new ArrayList<>();
 		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
 
+		List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
+		List<Pilot> suitableFOs = intersectFOs(validPilots, allFOs);
+
 		try {
-			return validPilots.get(0);
-		} catch (IndexOutOfBoundsException e) {
-			validPilots = crew.getAllPilots();
-			return validPilots.get(0);
+			return suitableFOs.get(0);
+		} catch (Exception e) {
+			return unallocatedPilots.get(0);
 		}
 
-		/*
-		 * List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots); List<Pilot>
-		 * suitableFOs = intersectFOs(validPilots, allCaptains); try { return
-		 * suitableFOs.get(0); } catch (Exception e) {
-		 * System.out.println("No FOs found"); return null; }
-		 */
 	}
 
 	List<Pilot> getListOfFirstOfficers(List<Pilot> unallocatedPilots) {

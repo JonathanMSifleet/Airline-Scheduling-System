@@ -9,10 +9,8 @@ import baseclasses.IPassengerNumbersDAO;
 import baseclasses.IRouteDAO;
 import baseclasses.IScheduler;
 
-/**
- * This class allows you to run the code in your classes yourself, for testing
- * and development
- */
+/** This class allows you to run the code in your classes yourself, for testing
+ * and development */
 public class Main {
 
 	public static void main(String[] args) {
@@ -34,7 +32,7 @@ public class Main {
 		try {
 			crew.loadCrewData(Paths.get("./data/schedule_crew.json"));
 			// crew.loadCrewData(Paths.get("./data/crew.json"));
-			// System.out.println("Number of crew " + (crew.getNumberOfCabinCrew());
+			// System.out.println("Number of crew " + crew.getNumberOfCabinCrew());
 			// System.out.println("Number of pilots: " + crew.getNumberOfPilots());
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading crew data");

@@ -189,9 +189,7 @@ public class AircraftDAO implements IAircraftDAO {
 		return globalArrayOfAircraft.size();
 	}
 
-	/**
-	 * Unloads all of the aircraft currently loaded, ready to start again if needed
-	 */
+	/** Unloads all of the aircraft currently loaded, ready to start again if needed */
 	@Override
 	public void reset() {
 

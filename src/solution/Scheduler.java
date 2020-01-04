@@ -38,6 +38,11 @@ public class Scheduler implements IScheduler {
 			List<Pilot> unallocatedPilots = crew.getAllPilots();
 			List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
 
+			System.out.println("List of pilots: ");
+			for (int k = 0; k < unallocatedPilots.size(); k++) {
+				System.out.println(unallocatedPilots.get(k).getSurname());
+			}
+
 			unallocatedAircrafts.remove(aircrafts.findAircraftByTailCode("A320"));
 
 			// gets flight data
@@ -47,6 +52,9 @@ public class Scheduler implements IScheduler {
 
 			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, remainingAllocations.get(i), schedule);
 			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots);
+			System.out.println("Removing pilot " + captainToUse.getSurname() + " from the list...");
+			System.out.println();
+
 			unallocatedPilots.remove(captainToUse);
 
 			Pilot firstOfficerToUse = determineFirstOfficer(crew, aircraftToUse, unallocatedPilots);
@@ -61,7 +69,6 @@ public class Scheduler implements IScheduler {
 
 				for (int j = 0; j < cabinCrewToUse.size(); j++) {
 					schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), remainingAllocations.get(i));
-					System.out.print(cabinCrewToUse.get(j).getSurname() + ", ");
 				}
 
 				System.out.println();
@@ -104,8 +111,8 @@ public class Scheduler implements IScheduler {
 		System.out.println("Captain to use: " + captainToUse.getSurname());
 		System.out.println("FO to use: " + firstOfficerToUse.getSurname());
 		System.out.println("Cabin crew to use: ");
-		for (int j = 0; j < cabinCrewToUse.size(); j++) {
-			System.out.print(cabinCrewToUse.get(j).getSurname() + ", ");
+		for (CabinCrew curCrew : cabinCrewToUse) {
+			System.out.print(curCrew.getSurname() + ", ");
 		}
 	}
 
@@ -128,7 +135,6 @@ public class Scheduler implements IScheduler {
 	}
 
 	Pilot determineCaptain(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots) {
-		// get captain
 		List<Pilot> validPilots = new ArrayList<>();
 		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
 
@@ -143,7 +149,6 @@ public class Scheduler implements IScheduler {
 	}
 
 	Pilot determineFirstOfficer(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots) {
-		// get FO
 		List<Pilot> validPilots = new ArrayList<>();
 		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
 

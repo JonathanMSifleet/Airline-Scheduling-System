@@ -32,6 +32,7 @@ public class Main {
 		try {
 			crew.loadCrewData(Paths.get("./data/schedule_crew.json"));
 			// crew.loadCrewData(Paths.get("./data/crew.json"));
+			
 			// System.out.println("Number of crew " + crew.getNumberOfCabinCrew());
 			// System.out.println("Number of pilots: " + crew.getNumberOfPilots());
 		} catch (DataLoadingException dle) {
@@ -44,6 +45,7 @@ public class Main {
 		try {
 			passengers.loadPassengerNumbersData(Paths.get("./data/schedule_passengers.db"));
 			// passengers.loadPassengerNumbersData(Paths.get("./data/passengernumbers.db"));
+			
 			// System.out.println("Sets of passengers " + passengers.getNumberOfEntries());
 		} catch (DataLoadingException dle) {
 			System.err.println("Error loading passenger data");

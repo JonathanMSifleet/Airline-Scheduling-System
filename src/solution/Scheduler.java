@@ -45,6 +45,14 @@ public class Scheduler implements IScheduler {
 		Pilot lastFO = new Pilot();
 		List<CabinCrew> lastCabinCrew = new ArrayList<>();
 
+		int moduloNum = -1;
+
+		if (aircrafts.getNumberOfAircraft() == 4) {
+			moduloNum = 4;
+		} else {
+			moduloNum = 32;
+		}
+
 		for (int i = 0; i < numAllocations; i++) {
 
 			if (!allAllocations.get(i).getFlight().getDayOfWeek().equals(curDay)) {
@@ -53,7 +61,7 @@ public class Scheduler implements IScheduler {
 				System.out.println("----------");
 			}
 
-			if (i % 4 == 0) {
+			if (i % moduloNum == 0) {
 				unallocatedPilots.clear();
 				unallocatedPilots = crew.getAllPilots();
 				unallocatedCabinCrew.clear();
@@ -188,24 +196,16 @@ public class Scheduler implements IScheduler {
 		int i = 0;
 		do {
 			try {
-				if (suitableCaptains.get(i) != lastCaptain) {
+				if (suitableCaptains.get(i) != lastCaptain && suitableCaptains.get(i) != lastFO) {
 					return suitableCaptains.get(i);
 				}
 			} catch (Exception e) {
-				if (unallocatedPilots.get(i) != lastCaptain) {
+				if (unallocatedPilots.get(i) != lastCaptain && unallocatedPilots.get(i) != lastFO) {
 					return unallocatedPilots.get(i);
 				}
 				i++;
 			}
 		} while (true);
-
-		/*
-		 * try {
-		 * return suitableCaptains.get(0);
-		 * } catch (Exception e) {
-		 * return unallocatedPilots.get(0);
-		 * }
-		 */
 
 	}
 

@@ -32,10 +32,18 @@ public class Scheduler implements IScheduler {
 
 		List<FlightInfo> remainingAllocations = schedule.getRemainingAllocations();
 
-		for (int i = 0; i < 32; i++) {
+		for (int i = 0; i < remainingAllocations.size(); i++) {
 
+			List<Aircraft> unallocatedAircrafts = aircrafts.getAllAircraft();
 			List<Pilot> unallocatedPilots = crew.getAllPilots();
 			List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
+
+			System.out.println("List of pilots: ");
+			for (int k = 0; k < unallocatedPilots.size(); k++) {
+				System.out.println(unallocatedPilots.get(k).getSurname());
+			}
+
+			unallocatedAircrafts.remove(aircrafts.findAircraftByTailCode("A320"));
 
 			// gets flight data
 			int flightNumber = remainingAllocations.get(i).getFlight().getFlightNumber();
@@ -44,7 +52,12 @@ public class Scheduler implements IScheduler {
 
 			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, aircraftToRemove, numPassengers, remainingAllocations.get(i), schedule);
 			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots);
-			Pilot firstOfficerToUse = determineFirstOfficer(crew, aircraftToUse, unallocatedPilots, captainToUse);
+			System.out.println("Removing pilot " + captainToUse.getSurname() + " from the list...");
+			System.out.println();
+
+			unallocatedPilots.remove(captainToUse);
+
+			Pilot firstOfficerToUse = determineFirstOfficer(crew, aircraftToUse, unallocatedPilots);
 			List<CabinCrew> cabinCrewToUse = determineSuitableCabinCrew(crew, aircraftToUse, unallocatedCabinCrew);
 
 			printFlightTelemetry(remainingAllocations, i, flightNumber, flightDate, aircraftToUse, numPassengers, captainToUse, firstOfficerToUse, cabinCrewToUse);
@@ -60,13 +73,8 @@ public class Scheduler implements IScheduler {
 
 				System.out.println();
 
-				if (schedule.isValid(remainingAllocations.get(i))) {
-					System.out.println("Flight allocated");
-				} else {
-					System.out.println("Flight not valid");
-				}
-
 				schedule.completeAllocationFor(remainingAllocations.get(i));
+				System.out.println("Flight allocated");
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -140,24 +148,18 @@ public class Scheduler implements IScheduler {
 
 	}
 
-	Pilot determineFirstOfficer(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots, Pilot captainToUse) {
+	Pilot determineFirstOfficer(ICrewDAO crew, Aircraft aircraftToUse, List<Pilot> unallocatedPilots) {
 		List<Pilot> validPilots = new ArrayList<>();
 		validPilots = crew.findPilotsByTypeRating(aircraftToUse.getTypeCode());
 
 		List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
 		List<Pilot> suitableFOs = intersectFOs(validPilots, allFOs);
 
-		int i = 0;
-		do {
-			if (suitableFOs.get(i) != captainToUse) {
-				// try {
-				return suitableFOs.get(i);
-				// } catch (Exception e) {
-				// return unallocatedPilots.get(0);
-				// }
-			}
-			i++;
-		} while (true);
+		try {
+			return suitableFOs.get(0);
+		} catch (Exception e) {
+			return unallocatedPilots.get(0);
+		}
 
 	}
 

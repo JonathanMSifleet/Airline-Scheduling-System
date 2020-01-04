@@ -68,11 +68,8 @@ public class Main {
 		LocalDate endDate = LocalDate.parse("2020-07-08");
 
 		IScheduler scheduler = new Scheduler();
-		try {
-			scheduler.generateSchedule(aircrafts, crew, routes, passengers, startDate, endDate);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		scheduler.generateSchedule(aircrafts, crew, routes, passengers, startDate, endDate);
+
 	}
 
 }

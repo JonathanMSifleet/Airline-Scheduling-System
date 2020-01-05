@@ -202,19 +202,21 @@ public class Scheduler implements IScheduler {
 		Collections.shuffle(suitableCaptains);
 		Collections.shuffle(unallocatedPilots);
 
-		int i = 0;
-		do {
-			try {
-				if (suitableCaptains.get(i) != lastCaptain || suitableCaptains.get(i) != lastFO) {
-					return suitableCaptains.get(i);
-				}
-			} catch (Exception e) {
-				if (unallocatedPilots.get(i) != lastCaptain || unallocatedPilots.get(i) != lastFO) {
-					return unallocatedPilots.get(i);
-				}
-				i++;
+		for (Pilot curCaptain : suitableCaptains) {
+			if (curCaptain != lastFO && curCaptain != lastCaptain) {
+				return curCaptain;
 			}
-		} while (true);
+		}
+
+		System.out.println("No suitable captains found, now trying all captains");
+		for (Pilot curCaptain : unallocatedPilots) {
+			if (curCaptain != lastFO && curCaptain != lastCaptain) {
+				return curCaptain;
+			}
+		}
+
+		System.out.println("Null captain");
+		return null;
 
 	}
 

@@ -48,7 +48,7 @@ public class Scheduler implements IScheduler {
 		int moduloNum = -1;
 
 		if (aircrafts.getNumberOfAircraft() == 4) {
-			moduloNum = 3;
+			moduloNum = 4;
 		} else {
 			moduloNum = 32;
 		}
@@ -199,8 +199,8 @@ public class Scheduler implements IScheduler {
 		List<Pilot> allCaptains = getListOfCaptains(unallocatedPilots);
 		List<Pilot> suitableCaptains = intersectPilots(validPilots, allCaptains);
 
-		Collections.shuffle(suitableCaptains);
-		Collections.shuffle(unallocatedPilots);
+		// Collections.shuffle(suitableCaptains);
+		// Collections.shuffle(unallocatedPilots);
 
 		for (Pilot curCaptain : suitableCaptains) {
 			if (curCaptain != lastFO && curCaptain != lastCaptain) {
@@ -208,7 +208,7 @@ public class Scheduler implements IScheduler {
 			}
 		}
 
-		System.out.println("No suitable captains found, now trying all captains");
+		// System.out.println("No suitable captains found, now trying all captains");
 		for (Pilot curCaptain : unallocatedPilots) {
 			if (curCaptain != lastFO && curCaptain != lastCaptain) {
 				return curCaptain;
@@ -227,8 +227,8 @@ public class Scheduler implements IScheduler {
 		List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
 		List<Pilot> suitableFOs = intersectFOs(validPilots, allFOs);
 
-		Collections.shuffle(suitableFOs);
-		Collections.shuffle(unallocatedPilots);
+		// Collections.shuffle(suitableFOs);
+		// Collections.shuffle(unallocatedPilots);
 
 		for (Pilot curFO : suitableFOs) {
 			if (curFO != captainToUse && curFO != lastFO && curFO != lastCaptain) {
@@ -236,7 +236,7 @@ public class Scheduler implements IScheduler {
 			}
 		}
 
-		System.out.println("No suitable FOs found, now trying all FOs");
+		// System.out.println("No suitable FOs found, now trying all FOs");
 		for (Pilot curFO : unallocatedPilots) {
 			if (curFO != captainToUse && curFO != lastFO && curFO != lastCaptain) {
 				return curFO;
@@ -257,7 +257,7 @@ public class Scheduler implements IScheduler {
 			suitableCrew.removeAll(lastCabinCrew);
 		}
 
-		Collections.shuffle(suitableCrew);
+		// Collections.shuffle(suitableCrew);
 
 		try {
 			for (int j = 0; j < aircraftToUse.getCabinCrewRequired(); j++) {

@@ -176,7 +176,12 @@ public class AircraftDAO implements IAircraftDAO {
 	 */
 	@Override
 	public List<Aircraft> getAllAircraft() {
-		return globalArrayOfAircraft;
+		
+		List<Aircraft> tempAllAircraft = new ArrayList<>();
+		
+		tempAllAircraft.addAll(globalArrayOfAircraft);
+		
+		return tempAllAircraft;
 	}
 
 	/**

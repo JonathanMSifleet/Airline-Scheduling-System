@@ -205,7 +205,12 @@ public class RouteDAO implements IRouteDAO {
 	@Override
 	public List<Route> getAllRoutes() {
 		// TODO Auto-generated method stub
-		return arrayOfRoutes;
+
+		List<Route> tempAllRoutes = new ArrayList<>();
+
+		tempAllRoutes.addAll(arrayOfRoutes);
+
+		return tempAllRoutes;
 	}
 
 	/** Returns The number of routes currently loaded
@@ -221,6 +226,6 @@ public class RouteDAO implements IRouteDAO {
 	@Override
 	public void reset() {
 		// TODO Auto-generated method stub
-		arrayOfRoutes = new ArrayList<Route>();
+		arrayOfRoutes.clear();
 	}
 }

@@ -139,9 +139,9 @@ public class Scheduler implements IScheduler {
 			}
 			System.out.println("---------");
 		}
-		
+
 		if (isCompetition) {
-			System.out.println("Remaining allocations: " + (6687 - validAllocations));
+			System.out.println("Allocations : " + validAllocations + ", remaining " + (6687 - validAllocations));
 		} else {
 			System.out.println("Valid allocations: " + validAllocations);
 
@@ -229,9 +229,6 @@ public class Scheduler implements IScheduler {
 		List<Pilot> allCaptains = getListOfCaptains(unallocatedPilots);
 		List<Pilot> suitableCaptains = intersectPilots(validPilots, allCaptains);
 
-		// Collections.shuffle(suitableCaptains);
-		// Collections.shuffle(unallocatedPilots);
-
 		for (Pilot curCaptain : suitableCaptains) {
 			if (curCaptain != lastFO && curCaptain != lastCaptain) {
 				return curCaptain;
@@ -256,9 +253,6 @@ public class Scheduler implements IScheduler {
 
 		List<Pilot> allFOs = getListOfFirstOfficers(unallocatedPilots);
 		List<Pilot> suitableFOs = intersectFOs(validPilots, allFOs);
-
-		// Collections.shuffle(suitableFOs);
-		// Collections.shuffle(unallocatedPilots);
 
 		for (Pilot curFO : suitableFOs) {
 			if (curFO != captainToUse && curFO != lastFO && curFO != lastCaptain) {
@@ -286,8 +280,6 @@ public class Scheduler implements IScheduler {
 		if (i != 0) {
 			suitableCrew.removeAll(lastCabinCrew);
 		}
-
-		// Collections.shuffle(suitableCrew);
 
 		try {
 			for (int j = 0; j < aircraftToUse.getCabinCrewRequired(); j++) {

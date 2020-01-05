@@ -2,7 +2,6 @@ package solution;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import baseclasses.Aircraft;
@@ -21,6 +20,8 @@ import baseclasses.SchedulerRunner;
 
 public class Scheduler implements IScheduler {
 
+	boolean isCompetition = false;
+
 	@Override
 	public Schedule generateSchedule(IAircraftDAO aircrafts, ICrewDAO crew, IRouteDAO routes, IPassengerNumbersDAO passengerNumbers, LocalDate startDate, LocalDate endDate) {
 		// TODO Auto-generated method stub
@@ -38,22 +39,28 @@ public class Scheduler implements IScheduler {
 		List<Pilot> unallocatedPilots = crew.getAllPilots();
 		List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
 
-		String curDay = "Wed";
-
-		String lastTailCode = "";
+		Aircraft lastPlane = new Aircraft();
+		List<Aircraft> listOfLastPlanes = new ArrayList<>();
 		Pilot lastCaptain = new Pilot();
 		Pilot lastFO = new Pilot();
 		List<CabinCrew> lastCabinCrew = new ArrayList<>();
 
-		int moduloNum = -1;
+		int moduloNum;
 
 		if (aircrafts.getNumberOfAircraft() == 4) {
 			moduloNum = 4;
 		} else {
-			moduloNum = 32;
+			isCompetition = true;
+			moduloNum = 48;
 		}
 
 		for (int i = 0; i < numAllocations; i++) {
+
+			if (isCompetition) {
+				if (i % moduloNum == 0) {
+					listOfLastPlanes.clear();
+				}
+			}
 
 			if (i % moduloNum == 0) {
 				unallocatedPilots.clear();
@@ -72,8 +79,11 @@ public class Scheduler implements IScheduler {
 			System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
 			System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
 
-			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, allAllocations.get(i), schedule, lastTailCode);
-			lastTailCode = aircraftToUse.getTailCode();
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, allAllocations.get(i), schedule, lastPlane, listOfLastPlanes);
+			lastPlane = aircraftToUse;
+			if (isCompetition) {
+				listOfLastPlanes.add(lastPlane);
+			}
 
 			System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
 			System.out.println("Type code: " + aircraftToUse.getTypeCode());
@@ -129,8 +139,13 @@ public class Scheduler implements IScheduler {
 			}
 			System.out.println("---------");
 		}
-		System.out.println("Valid allocations: " + validAllocations);
+		
+		if (isCompetition) {
+			System.out.println("Remaining allocations: " + (6687 - validAllocations));
+		} else {
+			System.out.println("Valid allocations: " + validAllocations);
 
+		}
 		if (validAllocations == 32) {
 			QualityScoreCalculator score = new QualityScoreCalculator(aircrafts, crew, passengerNumbers, schedule);
 			System.out.println("Score:" + score.calculateQualityScore());
@@ -175,7 +190,7 @@ public class Scheduler implements IScheduler {
 		}
 	}
 
-	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, int numPassengers, FlightInfo thisFlight, Schedule schedule, String lastTailCode) {
+	Aircraft determineSmallestAircraft(IAircraftDAO aircrafts, int numPassengers, FlightInfo thisFlight, Schedule schedule, Aircraft lastPlane, List<Aircraft> listOfLastPlanes) {
 
 		List<Aircraft> validAircraft = aircrafts.findAircraftBySeats(numPassengers);
 
@@ -183,8 +198,23 @@ public class Scheduler implements IScheduler {
 
 		aircraftToUse.setSeats(10000);
 		for (Aircraft curAircraft : validAircraft) {
-			if (curAircraft.getSeats() < aircraftToUse.getSeats() && (!curAircraft.getTailCode().equals(lastTailCode))) {
-				aircraftToUse = curAircraft;
+			if (!isCompetition) {
+				if (curAircraft.getSeats() < aircraftToUse.getSeats() && curAircraft != lastPlane) {
+					aircraftToUse = curAircraft;
+				}
+			} else {
+				if (curAircraft.getSeats() < aircraftToUse.getSeats() && (!listOfLastPlanes.contains(curAircraft))) {
+					aircraftToUse = curAircraft;
+				}
+			}
+		}
+
+		if (aircraftToUse.getSeats() == 10000) {
+			// no suitable aircraft found :(
+			for (Aircraft curAircraft : validAircraft) {
+				if (curAircraft.getSeats() < aircraftToUse.getSeats()) {
+					aircraftToUse = curAircraft;
+				}
 			}
 		}
 

@@ -38,6 +38,8 @@ public class Scheduler implements IScheduler {
 		List<Pilot> unallocatedPilots = crew.getAllPilots();
 		List<CabinCrew> unallocatedCabinCrew = crew.getAllCabinCrew();
 
+		String curDay = "Wed";
+
 		String lastTailCode = "";
 		Pilot lastCaptain = new Pilot();
 		Pilot lastFO = new Pilot();
@@ -58,8 +60,8 @@ public class Scheduler implements IScheduler {
 				unallocatedPilots = crew.getAllPilots();
 				unallocatedCabinCrew.clear();
 				unallocatedCabinCrew = crew.getAllCabinCrew();
-				//System.out.println("Availability reset");
-				//System.out.println("---------");
+				System.out.println("Availability reset");
+				System.out.println("---------");
 			}
 
 			// gets flight data
@@ -67,34 +69,34 @@ public class Scheduler implements IScheduler {
 			LocalDate flightDate = allAllocations.get(i).getDepartureDateTime().toLocalDate();
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
-			//System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
-			//System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
+			System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
+			System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
 
 			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, allAllocations.get(i), schedule, lastTailCode);
 			lastTailCode = aircraftToUse.getTailCode();
 
-			/* System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
+			System.out.println("Aircraft location: " + aircraftToUse.getStartingPosition());
 			System.out.println("Type code: " + aircraftToUse.getTypeCode());
 			System.out.println("Tail code: " + aircraftToUse.getTailCode());
 			System.out.println("Number of passengers: " + numPassengers + ", number of seats: " + aircraftToUse.getSeats());
-			System.out.println("Number of crew required: " + aircraftToUse.getCabinCrewRequired()); */
+			System.out.println("Number of crew required: " + aircraftToUse.getCabinCrewRequired());
 
 			Pilot captainToUse = determineCaptain(crew, aircraftToUse, unallocatedPilots, lastCaptain, lastFO);
 			unallocatedPilots.remove(captainToUse);
 			lastCaptain = captainToUse;
-			//System.out.println("Captain to use: " + captainToUse.getSurname());
+			System.out.println("Captain to use: " + captainToUse.getSurname());
 
 			Pilot firstOfficerToUse = determineFirstOfficer(crew, aircraftToUse, unallocatedPilots, captainToUse, lastFO, lastCaptain);
 			unallocatedPilots.remove(firstOfficerToUse);
 			lastFO = firstOfficerToUse;
-			//System.out.println("FO to use: " + firstOfficerToUse.getSurname());
+			System.out.println("FO to use: " + firstOfficerToUse.getSurname());
 
 			List<CabinCrew> cabinCrewToUse = determineSuitableCabinCrew(crew, aircraftToUse, unallocatedCabinCrew, lastCabinCrew, i);
 			unallocatedCabinCrew.removeAll(cabinCrewToUse);
-			/* System.out.println("Cabin crew to use: ");
+			System.out.println("Cabin crew to use: ");
 			for (CabinCrew curCrew : cabinCrewToUse) {
 				System.out.print(curCrew.getSurname() + ", ");
-			} */
+			}
 			if (i != 0) {
 				lastCabinCrew.addAll(cabinCrewToUse);
 			}
@@ -110,12 +112,12 @@ public class Scheduler implements IScheduler {
 					schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), allAllocations.get(i));
 				}
 
-				//System.out.println();
+				System.out.println();
 
 				if (schedule.isValid(allAllocations.get(i))) {
-					//System.out.println("Flight allocated");
+					System.out.println("Flight allocated");
 				} else {
-					//System.out.println("Flight not valid");
+					System.out.println("Flight not valid");
 				}
 
 				schedule.completeAllocationFor(allAllocations.get(i));
@@ -123,9 +125,9 @@ public class Scheduler implements IScheduler {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				validAllocations--;
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
-			//System.out.println("---------");
+			System.out.println("---------");
 		}
 		System.out.println("Valid allocations: " + validAllocations);
 
@@ -136,7 +138,7 @@ public class Scheduler implements IScheduler {
 			String[] describeScore = score.describeQualityScore();
 
 			for (String curLine : describeScore) {
-				//System.out.println(curLine);
+				System.out.println(curLine);
 			}
 
 		}

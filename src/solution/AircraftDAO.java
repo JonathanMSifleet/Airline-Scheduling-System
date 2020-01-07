@@ -61,16 +61,6 @@ public class AircraftDAO implements IAircraftDAO {
 					temp.setCabinCrewRequired(Integer.parseInt(fields[5]));
 					temp.setStartingPosition(fields[6]);
 
-					// http://sandbox.kriswelsh.com/advprog/
-
-					// print aircraft data:
-					/*
-					 * System.out.println("Tail code: " + temp.getTailCode() + ", Type Code: " +
-					 * temp.getTypeCode() + ", manufacturer: " + temp.getManufacturer() +
-					 * ", model: " + temp.getModel() + ", seats: " + temp.getSeats() +
-					 * ", cabin crew required: " + temp.getCabinCrewRequired() +
-					 * ", start position: " + temp.getStartingPosition());
-					 */
 					globalArrayOfAircraft.add(temp);
 					temp = null;
 				} catch (Exception e) {
@@ -79,9 +69,9 @@ public class AircraftDAO implements IAircraftDAO {
 			}
 		}
 
-		catch (IOException ioe) {
+		catch (Exception e) {
 			// There was a problem reading the file
-			throw new DataLoadingException(ioe);
+			throw new DataLoadingException();
 		}
 	}
 

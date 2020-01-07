@@ -102,7 +102,7 @@ public class CrewDAO implements ICrewDAO {
 
 			globalArrayOfAllCrew.addAll(globalArrayOfCabinCrew);
 			globalArrayOfAllCrew.addAll(globalArrayOfPilots);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new DataLoadingException();
 		}
 

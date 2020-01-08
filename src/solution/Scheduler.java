@@ -14,6 +14,7 @@ import baseclasses.ICrewDAO;
 import baseclasses.IPassengerNumbersDAO;
 import baseclasses.IRouteDAO;
 import baseclasses.IScheduler;
+import baseclasses.InvalidAllocationException;
 import baseclasses.Pilot;
 import baseclasses.Pilot.Rank;
 import baseclasses.QualityScoreCalculator;
@@ -48,15 +49,21 @@ public class Scheduler implements IScheduler {
 		List<CabinCrew> lastCabinCrew = new ArrayList<>();
 
 		int moduloNum;
+		int allocationsToMake = -1;
 
 		if (aircrafts.getNumberOfAircraft() == 4) {
 			moduloNum = 4;
+			allocationsToMake = 32;
 		} else {
 			isCompetition = true;
 			moduloNum = 48;
+			allocationsToMake = 6687;
 		}
 
-		for (int i = 0; i < allAllocations.size(); i++) {
+		int i = 0;
+
+		for (FlightInfo curFlight : allAllocations) {
+//		for (int i = 0; i < allAllocations.size(); i++) {
 
 			if (isCompetition) {
 				if (i % moduloNum == 0) {
@@ -74,15 +81,15 @@ public class Scheduler implements IScheduler {
 			}
 
 			// gets flight data
-			int flightNumber = allAllocations.get(i).getFlight().getFlightNumber();
-			LocalDate flightDate = allAllocations.get(i).getDepartureDateTime().toLocalDate();
+			int flightNumber = curFlight.getFlight().getFlightNumber();
+			LocalDate flightDate = curFlight.getDepartureDateTime().toLocalDate();
 			int numPassengers = passengerNumbers.getPassengerNumbersFor(flightNumber, flightDate);
 
 			System.out.println((i + 1) + ") Flight number: " + flightNumber + ", date: " + flightDate);
-			System.out.println("Departure location: " + allAllocations.get(i).getFlight().getDepartureAirportCode());
+			System.out.println("Departure location: " + curFlight.getFlight().getDepartureAirportCode());
 
-			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, allAllocations.get(i),
-					schedule, lastPlane, listOfLastPlanes);
+			Aircraft aircraftToUse = determineSmallestAircraft(aircrafts, numPassengers, curFlight, schedule, lastPlane,
+					listOfLastPlanes);
 			lastPlane = aircraftToUse;
 			if (isCompetition) {
 				listOfLastPlanes.add(lastPlane);
@@ -118,92 +125,57 @@ public class Scheduler implements IScheduler {
 			}
 
 			try {
-				try {
-					schedule.allocateAircraftTo(aircraftToUse, allAllocations.get(i));
-				} catch (DoubleBookedException e) {
-					while (true) {
-						try {
-							schedule.allocateAircraftTo(selectRandomAircraft(aircrafts, numPassengers),
-									allAllocations.get(i));
-							break;
-						} catch (Exception e1) {
-						}
-					}
-				}
 
-				try {
-					schedule.allocateCaptainTo(captainToUse, allAllocations.get(i));
-				} catch (DoubleBookedException e) {
-					while (true) {
-						try {
-							schedule.allocateCaptainTo(selectRandomPilot(crew), allAllocations.get(i));
-							break;
-						} catch (Exception e1) {
-						}
-					}
-				}
-
-				try {
-					schedule.allocateFirstOfficerTo(firstOfficerToUse, allAllocations.get(i));
-				} catch (DoubleBookedException e) {
-					while (true) {
-						try {
-							schedule.allocateFirstOfficerTo(selectRandomPilot(crew), allAllocations.get(i));
-							break;
-						} catch (Exception e1) {
-						}
-					}
-				}
-
-				for (int j = 0; j < cabinCrewToUse.size(); j++) {
-					try {
-						schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), allAllocations.get(i));
-					} catch (DoubleBookedException dbe) {
-						while (true) {
-							try {
-								schedule.allocateCabinCrewTo(selectRandomCC(crew), allAllocations.get(i));
-								break;
-							} catch (DoubleBookedException dbe1) {
-
-							}
-						}
-					}
-				}
+				allocateCrewAndCabin(schedule, crew, aircrafts, curFlight, cabinCrewToUse, aircraftToUse, captainToUse,
+						firstOfficerToUse, numPassengers, i);
 
 				System.out.println();
 
-				if (schedule.isValid(allAllocations.get(i))) {
+				try {
+					schedule.completeAllocationFor(curFlight);
+				} catch (InvalidAllocationException iae) {
+					while (true) {
+						try {
+							allocateCrewAndCabin(schedule, crew, aircrafts, curFlight, cabinCrewToUse, aircraftToUse,
+									captainToUse, firstOfficerToUse, numPassengers, i);
+							schedule.completeAllocationFor(curFlight);
+							break;
+						} catch (Exception e1) {
+						}
+					}
+				}
+
+				if (schedule.isValid(curFlight)) {
 					System.out.println("Flight allocated");
 				} else {
+					validAllocations--;
 					System.out.println("Flight not valid");
 				}
 
-				schedule.completeAllocationFor(allAllocations.get(i));
-
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				validAllocations--;
 				e.printStackTrace();
 			}
+
 			System.out.println("---------");
+			i++;
 		}
 
 		if (isCompetition) {
-			System.out.println("Allocations : " + validAllocations + ", remaining " + (6687 - validAllocations));
+			System.out.println(
+					"Allocations : " + validAllocations + ", remaining " + (allocationsToMake - validAllocations));
 		} else {
 			System.out.println("Valid allocations: " + validAllocations);
 
 		}
-		if (validAllocations == 32) {
-			QualityScoreCalculator score = new QualityScoreCalculator(aircrafts, crew, passengerNumbers, schedule);
-			System.out.println("Score:" + score.calculateQualityScore());
 
-			String[] describeScore = score.describeQualityScore();
+		QualityScoreCalculator score = new QualityScoreCalculator(aircrafts, crew, passengerNumbers, schedule);
+		System.out.println("Score:" + score.calculateQualityScore());
 
-			for (String curLine : describeScore) {
-				System.out.println(curLine);
-			}
+		String[] describeScore = score.describeQualityScore();
 
+		for (String curLine : describeScore) {
+			System.out.println(curLine);
 		}
 
 		return schedule;
@@ -220,6 +192,62 @@ public class Scheduler implements IScheduler {
 	public void stop() {
 		// TODO Auto-generated method stub
 
+	}
+
+	void allocateCrewAndCabin(Schedule schedule, ICrewDAO crew, IAircraftDAO aircrafts, FlightInfo curFlight,
+			List<CabinCrew> cabinCrewToUse, Aircraft aircraftToUse, Pilot captainToUse, Pilot firstOfficerToUse,
+			int numPassengers, int i) {
+
+		try {
+			schedule.allocateAircraftTo(aircraftToUse, curFlight);
+		} catch (DoubleBookedException e) {
+			while (true) {
+				try {
+					schedule.allocateAircraftTo(selectRandomAircraft(aircrafts, numPassengers), curFlight);
+					break;
+				} catch (Exception e1) {
+				}
+			}
+		}
+
+		try {
+			schedule.allocateCaptainTo(captainToUse, curFlight);
+		} catch (DoubleBookedException e) {
+			while (true) {
+				try {
+					schedule.allocateCaptainTo(selectRandomPilot(crew), curFlight);
+					break;
+				} catch (Exception e1) {
+				}
+			}
+		}
+
+		try {
+			schedule.allocateFirstOfficerTo(firstOfficerToUse, curFlight);
+		} catch (DoubleBookedException e) {
+			while (true) {
+				try {
+					schedule.allocateFirstOfficerTo(selectRandomPilot(crew), curFlight);
+					break;
+				} catch (Exception e1) {
+				}
+			}
+		}
+
+		for (int j = 0; j < cabinCrewToUse.size(); j++) {
+			try {
+				schedule.allocateCabinCrewTo(cabinCrewToUse.get(j), curFlight);
+			} catch (DoubleBookedException dbe) {
+				while (true) {
+					try {
+						schedule.allocateCabinCrewTo(selectRandomCC(crew), curFlight);
+						break;
+					} catch (DoubleBookedException dbe1) {
+
+					}
+				}
+			}
+		}
 	}
 
 	Pilot selectRandomPilot(ICrewDAO crew) {
